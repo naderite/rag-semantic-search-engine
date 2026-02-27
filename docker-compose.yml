@@ -1,0 +1,31 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: rag-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+
+  rag-indexer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-indexer
+    depends_on:
+      - qdrant
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: rag_chunks
+      EMBEDDING_MODEL: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+      RAG_INPUT_DIR: data
+      RAG_OUTPUT_DIR: artifacts
+    volumes:
+      - ./artifacts:/app/artifacts
+      - huggingface_cache:/root/.cache/huggingface
+    command: ["python", "scripts/run_indexing.py"]
+
+volumes:
+  qdrant_storage:
+  huggingface_cache:

@@ -1,0 +1,5 @@
+pdfplumber
+pytesseract
+pillow
+sentence-transformers
+qdrant-client

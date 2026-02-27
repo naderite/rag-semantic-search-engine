@@ -1,0 +1,794 @@
+[
+  {
+    "id": "q01",
+    "category": "bread_dosage_hcf",
+    "query": "What is the recommended dosage for bread improvement in the HCF product line?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF MAX X: Bread Improvement 1-15 ppm; Suggested Optimum Dosage 0.5-2 ppm.",
+        "source_file": "TDS BVzyme HCF MAX X.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme HCF MAX64: Bread Improvement 2-35 ppm; Suggested Optimum Dosage 2-10 ppm.",
+        "source_file": "TDS BVzyme HCF MAX64.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme HCF MAX63: Bread Improvement 10-70 ppm; Suggested Optimum Dosage 15-35 ppm.",
+        "source_file": "TDS BVzyme HCF MAX63.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q02",
+    "category": "ascorbic_dosage",
+    "query": "For ascorbic acid (E300), what dosage is indicated for pain de mie (CBP)?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Pain de mie (CBP): 75 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Panification directe standard: 20-60 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Panification avec pousse lente: 60-80 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q03",
+    "category": "ascorbic_regulatory",
+    "query": "What is the maximum authorized dosage mentioned for ascorbic acid?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Dosage maximum autorise: 300 ppm (UE/France/Belgique).",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "France/Belgique: 300 ppm under 'Dosage Maximum Autorise'.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      },
+      {
+        "candidate_answer": "Recommended production start point: 50-75 ppm (not legal max).",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      }
+    ]
+  },
+  {
+    "id": "q04",
+    "category": "a_soft",
+    "query": "Which document explicitly gives a suggested dosage of 30 ppm, and what is its range?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A SOFT305: Dosage range 15-50 ppm, suggested dosage 30 ppm.",
+        "source_file": "BVZyme TDS A SOFT305(1).pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme A SOFT205: dosage 15-100 ppm.",
+        "source_file": "BVZyme TDS A SOFT205.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme A SOFT405: dosage 15-90 ppm.",
+        "source_file": "BVZyme TDS A SOFT405.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q05",
+    "category": "storage_common",
+    "query": "What storage shelf-life and temperature are repeatedly specified in the enzyme TDS documents?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Date of minimum durability: 24 months; store in a cool, dry place below 20C.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Date of Minimum Durability: 24 months; keep in a cool and dry place (<20C).",
+        "source_file": "TDS BVzyme HCF600.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Date of Minimum Durability: 24 months; keep in a cool and dry place (<20C).",
+        "source_file": "TDS BVZyme HCB708.pdf",
+        "page": 2
+      }
+    ]
+  },
+  {
+    "id": "q06",
+    "category": "allergen",
+    "query": "What allergen is declared in the Food Safety Data across the BVZyme enzyme sheets?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Declared allergen: gluten.",
+        "source_file": "BVZyme  TG MAX63 TDS.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Declared allergen: gluten.",
+        "source_file": "TDS BVzyme HCF MAX64.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Declared allergen: gluten.",
+        "source_file": "BVZyme TDS AF110.pdf",
+        "page": 2
+      }
+    ]
+  },
+  {
+    "id": "q07",
+    "category": "food_safety_metals",
+    "query": "What heavy metal limits are stated for cadmium and lead in the enzyme Food Safety Data?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Cadmium <0.5 mg/kg and Lead <5 mg/kg.",
+        "source_file": "BVZyme GO MAX 63 TDS.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Cadmium <0.5 mg/kg and Lead <5 mg/kg.",
+        "source_file": "TDS BVZyme HCB710.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Cadmium <0.5 mg/kg and Lead <5 mg/kg.",
+        "source_file": "TDS L65pdf.pdf",
+        "page": 2
+      }
+    ]
+  },
+  {
+    "id": "q08",
+    "category": "tg_family",
+    "query": "Among transglutaminase products, what dosage ranges are listed for TG MAX63, TG MAX64, and TG883?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme TG MAX63 dosage: 5-25 ppm.",
+        "source_file": "BVZyme  TG MAX63 TDS.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme TG MAX64 dosage: 5-20 ppm.",
+        "source_file": "BVZyme  TG MAX64 TDS.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme TG883 dosage: 5-30 ppm.",
+        "source_file": "BVZyme  TG883 TDS.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q09",
+    "category": "gox_family",
+    "query": "What dosage ranges are listed for glucose oxidase products GOX 110, GO MAX 63, and GO MAX 65?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme GOX 110 dosage: 5-40 ppm.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme GO MAX 63 dosage: 5-50 ppm.",
+        "source_file": "BVZyme GO MAX 63 TDS.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme GO MAX 65 dosage: 5-40 ppm.",
+        "source_file": "BVZyme GO MAX 65.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q10",
+    "category": "af_family",
+    "query": "What are the dosage values for AF110, AF220, and AF330?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AF110 dosage: 2-12 ppm.",
+        "source_file": "BVZyme TDS AF110.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme AF220 dosage: 2-10 ppm.",
+        "source_file": "BVZyme TDS AF220.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme AF330 dosage: 2-10 ppm.",
+        "source_file": "BVZyme TDS AF330.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q11",
+    "category": "ascorbic_conversion",
+    "query": "According to the ascorbic acid conversion table, how many grams correspond to 75 ppm for 100 kg flour?",
+    "expected_top3": [
+      {
+        "candidate_answer": "For 100 kg flour at 75 ppm: 7.5 g.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "For 50 kg flour at 75 ppm: 3.75 g.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "For 1,000 kg flour at 75 ppm: 75 g.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ]
+  },
+  {
+    "id": "q12",
+    "category": "ascorbic_specs",
+    "query": "What pH is specified for a 1% ascorbic acid solution, and what storage condition is recommended?",
+    "expected_top3": [
+      {
+        "candidate_answer": "pH en solution 1%: 2.0-2.5.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Recommended storage temperature: 15-25C with humidity <60%.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Shelf life mentioned: 18-24 months (depending on storage conditions).",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ]
+  },
+  {
+    "id": "q13",
+    "category": "gox_family",
+    "query": "Within GOX 110, GO MAX 63, and GO MAX 65, which product has the highest dosage upper bound?",
+    "expected_top3": [
+      {
+        "candidate_answer": "GO MAX 63 has the highest upper bound: 50 ppm.",
+        "source_file": "BVZyme GO MAX 63 TDS.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "GOX 110 upper bound: 40 ppm.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "GO MAX 65 upper bound: 40 ppm.",
+        "source_file": "BVZyme GO MAX 65.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q14",
+    "category": "hcb_family",
+    "query": "What dosage ranges are listed for HCB708, HCB709, and HCB710?",
+    "expected_top3": [
+      {
+        "candidate_answer": "HCB708: 5-30 ppm.",
+        "source_file": "TDS BVZyme HCB708.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "HCB709: 5-20 ppm.",
+        "source_file": "TDS BVZyme HCB709.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "HCB710: 5-20 ppm.",
+        "source_file": "TDS BVZyme HCB710.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q15",
+    "category": "af_family",
+    "query": "Which AF product has the highest stated activity among AF110, AF220, and AF330?",
+    "expected_top3": [
+      {
+        "candidate_answer": "AF110 has 150000 SKB/g activity, highest among these three.",
+        "source_file": "BVZyme TDS AF110.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "AF220 activity: 11000 FAU/g.",
+        "source_file": "BVZyme TDS AF220.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "AF330 activity: 11900 FAU/g.",
+        "source_file": "BVZyme TDS AF330.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q16",
+    "category": "bread_dosage_hcf",
+    "query": "For HCF MAX X, what are the standardization dosage and suggested optimum dosage values?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Standardization of Wheat Flour: 0.5-2 ppm.",
+        "source_file": "TDS BVzyme HCF MAX X.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Suggested Optimum Dosage: 0.5-2 ppm.",
+        "source_file": "TDS BVzyme HCF MAX X.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Bread Improvement: 1-15 ppm.",
+        "source_file": "TDS BVzyme HCF MAX X.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q17",
+    "category": "bread_dosage_hcf",
+    "query": "For HCF600, what is the suggested optimum dosage and bread improvement dosage range?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Suggested Optimum Dosage: 2-10 ppm.",
+        "source_file": "TDS BVzyme HCF600.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Bread Improvement: 2-35 ppm.",
+        "source_file": "TDS BVzyme HCF600.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Standardization of Wheat Flour: 1-5 ppm.",
+        "source_file": "TDS BVzyme HCF600.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q18",
+    "category": "lipase_family",
+    "query": "What are the dosage ranges for L MAX63, L MAX64, and L MAX65?",
+    "expected_top3": [
+      {
+        "candidate_answer": "L MAX63 dosage: 5-30 ppm.",
+        "source_file": "BVZyme TDS L MAX63.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "L MAX64 dosage: 5-60 ppm.",
+        "source_file": "BVZyme TDS L MAX64.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "L MAX65 dosage: 5-50 ppm.",
+        "source_file": "BVZyme TDS L MAX65.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q19",
+    "category": "freshness_family",
+    "query": "What dosage ranges are given for A FRESH101, A FRESH202, and A FRESH303?",
+    "expected_top3": [
+      {
+        "candidate_answer": "A FRESH101 dosage: 15-100 ppm.",
+        "source_file": "BVZyme TDS A FRESH101.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "A FRESH202 dosage: 10-90 ppm.",
+        "source_file": "BVZyme TDS A FRESH202.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "A FRESH303 dosage: 15-100 ppm.",
+        "source_file": "BVZyme TDS A FRESH303.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q20",
+    "category": "ascorbic_regulatory",
+    "query": "Which legal frameworks are cited for ascorbic acid authorization?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Authorized in UE (Directive 2014/34/UE).",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      },
+      {
+        "candidate_answer": "Authorized in Tunisia (Normes INNORPI).",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      },
+      {
+        "candidate_answer": "Authorized internationally (Codex Alimentarius).",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      }
+    ]
+  },
+  {
+    "id": "q21",
+    "category": "ascorbic_specs",
+    "query": "How fast does ascorbic acid act after incorporation and what production start dosage is advised?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Action rapide: 5-15 minutes after incorporation.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Temps d'action in production guidance: 5-15 minutes.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 3
+      },
+      {
+        "candidate_answer": "Start with 50-75 ppm as a standard safe dosage.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      }
+    ]
+  },
+  {
+    "id": "q22",
+    "category": "storage_common",
+    "query": "In enzyme TDS sheets, what package format and storage shelf life are stated?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Package: Carton box of 25 kg; Date of minimum durability: 24 months.",
+        "source_file": "BVZyme  TG881 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Package: Carton box of 25 kg; Date of Minimum Durability: 24 months.",
+        "source_file": "TDS BVzyme HCF500.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Package: Carton box of 25 kg; Date of minimum durability: 24 months.",
+        "source_file": "TDS L65pdf.pdf",
+        "page": 2
+      }
+    ]
+  },
+  {
+    "id": "q23",
+    "category": "amg_family",
+    "query": "For AMG880 and AMG1400, what dosage range is listed and what function is highlighted?",
+    "expected_top3": [
+      {
+        "candidate_answer": "AMG880 dosage: 10-100 ppm; function includes improving crust color and oven spring/fermentation.",
+        "source_file": "BVZyme TDS AMG880.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "AMG1400 dosage: 10-100 ppm; function includes improving crust color and oven spring/fermentation.",
+        "source_file": "BVZyme TDS AMG1400.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Both are based on amyloglucosidase and target baking color/fermentation performance.",
+        "source_file": "BVZyme TDS AMG1400.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q24",
+    "category": "hcb_family",
+    "query": "What are the effective material and activity for HCB708?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Effective material: bacterial xylanase from Bacillus subtilis fermentation.",
+        "source_file": "TDS BVZyme HCB708.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Activity: 568 XylH/g.",
+        "source_file": "TDS BVZyme HCB708.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Application: used in bakery and bread applications.",
+        "source_file": "TDS BVZyme HCB708.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q25",
+    "category": "broad_bread_dosage",
+    "query": "For improving bread volume and dough tolerance, what dosage ranges are commonly suggested in these enzyme sheets?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Examples include ranges like 5-40 ppm (GOX 110), 5-50 ppm (GO MAX 63), and 5-25 ppm (TG MAX63), depending on product/function.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "GO MAX 63 shows 5-50 ppm for gluten-network and stability improvement.",
+        "source_file": "BVZyme GO MAX 63 TDS.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "TG MAX63 shows 5-25 ppm for volume/texture/elasticity improvements.",
+        "source_file": "BVZyme  TG MAX63 TDS.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q26",
+    "category": "broad_safety_storage",
+    "query": "How long can these baking enzymes be stored and under what temperature conditions?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Most enzyme TDS sheets state 24 months minimum durability and storage in cool, dry conditions below 20C.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "HCF sheets state 24 months and keep in cool/dry place (<20C).",
+        "source_file": "TDS BVzyme HCF600.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "HCB sheets also state 24 months and cool/dry storage.",
+        "source_file": "TDS BVZyme HCB708.pdf",
+        "page": 2
+      }
+    ]
+  },
+  {
+    "id": "q27",
+    "category": "broad_food_safety",
+    "query": "What food safety limits are repeated in many product sheets for heavy metals and microbiology?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Heavy metals repeatedly include cadmium <0.5 mg/kg and lead <5 mg/kg; microbiology includes total plate count <50 000 UFC/g.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "HCB sheets repeat the same heavy metal and microbiology limits.",
+        "source_file": "TDS BVZyme HCB710.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Lipase/enzyme sheets such as L65 also repeat these values.",
+        "source_file": "TDS L65pdf.pdf",
+        "page": 2
+      }
+    ]
+  },
+  {
+    "id": "q28",
+    "category": "broad_allergen",
+    "query": "Do these bakery enzyme products mention allergens, and if yes which one?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Yes. The declared allergen is gluten in Food Safety Data.",
+        "source_file": "BVZyme  TG MAX64 TDS.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "HCF and HCB sheets also declare gluten.",
+        "source_file": "TDS BVzyme HCF MAX64.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "AF sheets similarly declare gluten.",
+        "source_file": "BVZyme TDS AF110.pdf",
+        "page": 2
+      }
+    ]
+  },
+  {
+    "id": "q29",
+    "category": "broad_bread_improver",
+    "query": "In the ascorbic acid document, what dosage levels are recommended for different bread production methods?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Panification directe standard: 20-60 ppm; pousse lente: 60-80 ppm; pain de mie (CBP): 75 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Other listed methods include blocage froid (80-100 ppm) and surgelation (150-200 ppm).",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Dosage maximum autorise is 300 ppm (UE/France/Belgique).",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q30",
+    "category": "broad_regulatory",
+    "query": "What legal or regulatory references are mentioned for using ascorbic acid in baking?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Authorized in UE, Tunisia (INNORPI), and internationally (Codex Alimentarius).",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      },
+      {
+        "candidate_answer": "The document also states France/Belgique maximum authorized dosage of 300 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      },
+      {
+        "candidate_answer": "Labeling mentions E300 / acide ascorbique.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      }
+    ]
+  },
+  {
+    "id": "q31",
+    "category": "broad_conversion",
+    "query": "If I dose around 75 ppm of ascorbic acid, how many grams do I need for common flour batch sizes?",
+    "expected_top3": [
+      {
+        "candidate_answer": "At 75 ppm: 0.75 g for 10 kg, 3.75 g for 50 kg, 7.5 g for 100 kg, and 75 g for 1000 kg flour.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "The document provides a quick conversion table in grams by flour weight.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "50 ppm, 100 ppm, and 150 ppm columns are also provided for comparison.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ]
+  },
+  {
+    "id": "q32",
+    "category": "broad_functional",
+    "query": "Which products in this corpus are mainly positioned for bread freshness and softness over storage?",
+    "expected_top3": [
+      {
+        "candidate_answer": "A FRESH and A SOFT families are explicitly designed to improve bread freshness/softness over storage.",
+        "source_file": "BVZyme TDS A FRESH101.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "A SOFT305 explicitly mentions improving softness/elasticity throughout storage and suggests 30 ppm.",
+        "source_file": "BVZyme TDS A SOFT305(1).pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "A SOFT405 highlights volume and crumb softness with improved storage softness.",
+        "source_file": "BVZyme TDS A SOFT405.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q33",
+    "category": "broad_functional",
+    "query": "Which enzyme lines focus on gluten network and gas retention rather than freshness?",
+    "expected_top3": [
+      {
+        "candidate_answer": "HCF/HCB xylanase lines focus on gluten extensibility, gas retention, oven spring, and loaf volume.",
+        "source_file": "TDS BVzyme HCF500.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "GOX/GO lines focus on gluten network strengthening and dough stability/tolerance.",
+        "source_file": "BVZyme GO MAX 63 TDS.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "TG lines focus on protein cross-linking and dough elasticity/volume.",
+        "source_file": "BVZyme  TG MAX63 TDS.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q34",
+    "category": "broad_practical",
+    "query": "For a bakery starting ascorbic acid trials, what safe starting range is suggested and what should be tracked?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Start around 50-75 ppm as a standard safe dosage.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      },
+      {
+        "candidate_answer": "Track volume, crumb, and color; adjust progressively based on results.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      },
+      {
+        "candidate_answer": "Document and keep production sheets/follow-up records.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      }
+    ]
+  },
+  {
+    "id": "q35",
+    "category": "broad_activity",
+    "query": "Which products show very high declared enzyme activity in the amylase/glucoamylase families?",
+    "expected_top3": [
+      {
+        "candidate_answer": "AF110 reports 150000 SKB/g (amylase).",
+        "source_file": "BVZyme TDS AF110.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "AMG1400 reports 80000 AGI/g and AMG880 reports 70000 AGI/g.",
+        "source_file": "BVZyme TDS AMG1400.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "AF SX reports 85000 SKB/g among amylase products.",
+        "source_file": "BVZymeTDSAF SX.pdf",
+        "page": 1
+      }
+    ]
+  },
+  {
+    "id": "q36",
+    "category": "broad_selector",
+    "query": "If my goal is flour standardization versus direct bread improvement, what dosage sections should I read in HCF sheets?",
+    "expected_top3": [
+      {
+        "candidate_answer": "HCF sheets provide separate sections for Standardization of Wheat Flour and Bread Improvement plus Suggested Optimum Dosage.",
+        "source_file": "TDS BVzyme HCF MAX64.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Example MAX64: standardization 1-5 ppm, bread improvement 2-35 ppm, optimum 2-10 ppm.",
+        "source_file": "TDS BVzyme HCF MAX64.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "Example MAX63/HCF500: standardization 5-20 ppm, bread improvement 10-70 ppm, optimum 15-35 ppm.",
+        "source_file": "TDS BVzyme HCF MAX63.pdf",
+        "page": 1
+      }
+    ]
+  }
+]

@@ -1,0 +1,279 @@
+# Semantic PDF RAG Pipeline
+
+Production-oriented, function-based pipeline to:
+- prepare noisy PDF content (including tables) for embeddings,
+- run classic direct PDF-to-embedding indexing (no artifact preparation step),
+- index chunks into Qdrant with cosine similarity,
+- retrieve the top-k most relevant chunks for a natural language query.
+
+This project is designed to be consumed by an API layer later (no CLI dependency required in core logic).
+
+## 1. What This Solves
+
+Document bases with technical PDFs often contain:
+- repeated headers/footers,
+- table-heavy pages,
+- mixed French/English content,
+- formatting artifacts that degrade embedding quality.
+
+This pipeline normalizes those inputs into embedding-friendly `JSONL` chunks and supports semantic retrieval (`top-k` + score + source metadata).
+
+## 2. Architecture
+
+### Processing flow
+
+1. PDF extraction (`pdfplumber`)
+2. OCR fallback on text-empty pages (`pytesseract` + `pdftoppm`)
+3. Text cleanup and table normalization to key/value semantic lines
+4. Chunking with overlap
+5. Embedding generation (`sentence-transformers`)
+6. Vector upsert to Qdrant (cosine)
+7. Hybrid ranking (dense + lexical + intent-field score)
+8. Query embedding + top-k search
+
+### Main modules
+
+- `rag/prepare.py`: extraction, normalization, chunking, artifact generation
+- `rag/index.py`: embedding + vector index build
+- `rag/search.py`: hybrid retrieval/reranking (dense + lexical + metadata intent matching)
+- `rag/pipeline.py`: orchestration helpers (`prepare_and_index`, `answer_question`)
+- `rag/vector_store.py`: Qdrant + in-memory vector stores
+- `rag/types.py`: configs, DTOs, reports
+
+## 3. Repository Layout
+
+```text
+RAG/
+  data/                  # input PDFs
+  artifacts/             # generated chunks/report
+  rag/                   # core package
+  scripts/run_indexing.py
+  docker-compose.yml
+  Dockerfile
+  requirements.txt
+  tests/
+```
+
+## 4. Core Public API
+
+From `rag/__init__.py`:
+
+- `prepare_documents(input_dir, output_dir, config) -> PrepReport`
+- `build_embeddings(chunks, cfg) -> tuple[ids, vectors, payloads]`
+- `index_to_qdrant(ids, vectors, payloads, cfg) -> IndexReport`
+- `build_vector_index(chunks, cfg) -> IndexReport`
+- `search_top_k(question, k, cfg) -> SearchResponse`
+- `prepare_and_index(input_dir, output_dir, prep_config, vector_config)`
+- `index_pdfs_directly(input_dir, prep_config, vector_config)`
+- `answer_question(question, search_config, top_k=6)`
+- `load_chunks_jsonl(jsonl_path) -> list[ChunkRecord]`
+- `run_quality_eval(cases, search_config, top_k=3) -> QualityEvalReport`
+
+### Important config objects
+
+- `PrepConfig`
+  - `chunk_size_tokens` (default `420`)
+  - `chunk_overlap_tokens` (default `60`)
+  - `min_chunk_tokens` (default `12`)
+  - `include_list_items` (default `False`)
+  - `dedup_across_docs` (default `True`)
+  - `enable_ocr_fallback` (default `True`)
+  - `ocr_lang` (default `eng+fra`)
+- `VectorConfig`
+  - `qdrant_url` (default `http://localhost:6333`)
+  - `collection_name` (default `rag_chunks`)
+  - `embedding_model` (default `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`)
+- `SearchConfig`
+  - same runtime params as `VectorConfig`
+  - `context_window` (default `1`): adds neighboring chunks from same doc/page around each top hit
+  - `chunks_jsonl_path` (default `artifacts/chunks.jsonl`): source used to resolve neighbor order
+  - `fetch_multiplier` (default `2`): retrieves a larger candidate pool before selecting top hits
+  - `hybrid_enabled` (default `True`)
+  - `candidate_pool` (default `30`)
+  - `dense_weight`, `lexical_weight`, `field_weight` (defaults `0.65`, `0.25`, `0.10`)
+  - `diversity_enabled`, `diversity_penalty` (defaults `True`, `0.10`)
+
+## 5. Quick Start (Docker, recommended)
+
+### Preconditions
+
+- Docker + Docker Compose installed.
+- Run commands from `ai-night/RAG` directory.
+
+### Start services
+
+```bash
+docker compose up -d --build
+```
+
+This starts:
+- `qdrant` on `localhost:6333`
+- `rag-indexer` job container that runs direct PDF indexing + embeddings (no prepare artifact step)
+
+### Follow indexing logs
+
+```bash
+docker compose logs -f rag-indexer
+```
+
+Successful end state includes:
+- `Preparation report: ...`
+- `Index report: IndexReport(collection_name='rag_chunks', vectors_upserted=...)`
+
+### Validate collection in Qdrant
+
+```bash
+curl -s http://localhost:6333/collections
+```
+
+You should see `rag_chunks` in the response.
+
+## 6. Query Indexed Data
+
+Run from `ai-night/RAG`:
+
+```bash
+python3 - <<'PY'
+from rag import SearchConfig, search_top_k
+
+resp = search_top_k(
+    question="Quel dosage recommandé pour le pain ?",
+    k=3,
+    cfg=SearchConfig(
+        qdrant_url="http://localhost:6333",
+        collection_name="rag_chunks",
+        context_window=1,
+        chunks_jsonl_path="artifacts/chunks.jsonl",
+        fetch_multiplier=2,
+    ),
+)
+
+for r in resp.results:
+    kind = "context" if r.is_context else "hit"
+    print(
+        f"[{r.rank}] {kind} final={r.final_score:.4f} "
+        f"dense={r.dense_score:.4f} lex={r.lex_score:.4f} "
+        f"field={r.field_score:.4f} doc={r.doc_id} page={r.page}"
+    )
+    print("matched_terms:", ", ".join(r.matched_terms))
+    print(r.text[:220], "\n")
+PY
+```
+
+Note: `search_top_k(..., k=3, ...)` now returns the 3 semantic hits plus optional context neighbors
+when `context_window > 0`, so total returned items can be greater than `k`.
+
+## 7. Local Python Run (without Docker indexer)
+
+### Create and activate a venv
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Start only Qdrant via Docker
+
+```bash
+docker compose up -d qdrant
+```
+
+### Run pipeline from Python (classic direct mode)
+
+```bash
+python3 - <<'PY'
+from rag import PrepConfig, VectorConfig, SearchConfig, index_pdfs_directly, search_top_k
+
+index_pdfs_directly(
+    input_dir="data",
+    prep_config=PrepConfig(),
+    vector_config=VectorConfig(qdrant_url="http://localhost:6333", collection_name="rag_chunks"),
+)
+
+resp = search_top_k(
+    "What is the recommended dosage for bread?",
+    3,
+    SearchConfig(qdrant_url="http://localhost:6333", collection_name="rag_chunks"),
+)
+
+print(resp.results[0].text if resp.results else "no results")
+PY
+```
+
+## 8. Generated Artifacts
+
+After preparation:
+- `artifacts/chunks.jsonl`
+- `artifacts/prep_report.json`
+
+### `chunks.jsonl` schema (per line)
+
+- `chunk_id`
+- `doc_id`
+- `file_name`
+- `page`
+- `section`
+- `chunk_type` (`paragraph`, `list_item`, `table_kv`)
+- `text` (normalized for embedding)
+- `text_raw` (original normalized source)
+- `lang` (`fr`, `en`, `mixed`)
+- `metadata` (units, fields, etc.)
+
+## 9. Testing
+
+Run unit tests from `ai-night/RAG`:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+Current tests cover:
+- table normalization to semantic key/value chunks,
+- atomic table chunk behavior,
+- indexing + top-k ranking behavior.
+
+## 10. Troubleshooting
+
+### `docker compose up` says "no configuration file provided"
+
+You are not in the project directory containing `docker-compose.yml`.
+
+Fix:
+- `cd /home/nader/Projects/hackathons/ai-night/RAG`
+- or use `docker compose -f /home/nader/Projects/hackathons/ai-night/RAG/docker-compose.yml up -d`
+
+### Qdrant reachable but no results
+
+- Check collection exists: `curl -s http://localhost:6333/collections`
+- Re-run indexing job: `docker compose run --rm rag-indexer`
+- Inspect logs: `docker compose logs -f rag-indexer`
+
+### OCR not used
+
+OCR triggers only when extracted text is empty or below threshold.
+Adjust `PrepConfig(min_text_chars_for_page=..., enable_ocr_fallback=True)`.
+
+## 11. Integration Notes (for API teams)
+
+Recommended service boundaries:
+- Startup job or endpoint: call `prepare_and_index(...)`
+- Query endpoint: call `search_top_k(question, 3, SearchConfig(...))`
+
+The module is already function-based and dependency-injectable via:
+- `VectorConfig(embedder=..., vector_store=...)`
+- `SearchConfig(embedder=..., vector_store=...)`
+
+This makes it straightforward to swap embedding providers or vector stores without rewriting business logic.
+
+## 12. Enterprise Retrieval Notes
+
+- Preparation now emits richer table metadata (`product_type`, `product_type_canonical`, `dosage`, `dosage_unit`) to improve intent-aware ranking.
+- Cross-document deduplication removes repetitive table rows that otherwise dominate results.
+- Retrieval uses a Qdrant-only hybrid score:
+  - cosine dense similarity,
+  - lexical token overlap,
+  - metadata/intent field boosts (example: bread queries favor bread/panification chunks).
+- Returned objects contain audit-ready evidence:
+  - source (`doc_id`, `page`, `chunk_id`),
+  - `dense_score`, `lex_score`, `field_score`, and `final_score`.
