@@ -290,6 +290,7 @@ cd /home/nader/Projects/hackathons/ai-night/RAG
 PYTHONPATH=. python3 tests/run_eval_audit.py \
   --eval-path tests/pdf_eval_queries_human.json \
   --output artifacts/eval_audit_report_human.json \
+  --embedding-model models/paraphrase-multilingual-MiniLM-L12-v2 \
   --model-name sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 \
   --run-name human_queries
 ```
@@ -312,6 +313,7 @@ cd /home/nader/Projects/hackathons/ai-night/RAG
 RAG_EMBEDDING_LOCAL_ONLY=1 PYTHONPATH=. python3 tests/run_eval_audit.py \
   --eval-path tests/pdf_eval_queries_human_100.json \
   --output artifacts/eval_audit_report_human_100.json \
+  --embedding-model models/paraphrase-multilingual-MiniLM-L12-v2 \
   --model-name models/paraphrase-multilingual-MiniLM-L12-v2 \
   --run-name human_100
 ```
