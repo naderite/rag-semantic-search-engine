@@ -1,4 +1,4 @@
-# Semantic PDF RAG Pipeline
+# Pipeline RAG Sémantique sur PDF
 
 Dans un contexte où une base documentaire contient un grand volume d'informations
 (rapports, procédures, recommandations, cas d'usage, etc.), les utilisateurs
@@ -9,7 +9,7 @@ L'objectif de ce projet est de développer un module intelligent capable d'assis
 l'utilisateur en retrouvant automatiquement les fragments les plus pertinents à partir
 d'une question formulée en langage naturel.
 
-## 1. What This Solves
+## 1. Problème Ciblé
 
 Le module doit:
 
@@ -33,45 +33,45 @@ En pratique, ce dépôt fournit une pipeline orientée production pour:
 
 ## 2. Architecture
 
-### Processing flow
+### Flux de traitement
 
-1. PDF extraction (`pdfplumber`)
-2. OCR fallback on text-empty pages (`pytesseract` + `pdftoppm`)
-3. Text cleanup and table normalization to key/value semantic lines
-4. Chunking with overlap
-5. Embedding generation (`sentence-transformers`)
-6. Vector upsert to Qdrant (cosine)
-7. Hybrid ranking (dense + lexical + intent-field score + metadata constraints)
-8. Route-aware retrieval policy (different search configs per query intent)
-9. Optional second-stage cross-encoder reranking (currently disabled by default)
-10. Query embedding + top-k search
+1. Extraction PDF (`pdfplumber`)
+2. Repli OCR sur pages sans texte (`pytesseract` + `pdftoppm`)
+3. Nettoyage texte et normalisation des tableaux en lignes sémantiques clé/valeur
+4. Découpage en chunks avec overlap
+5. Génération d'embeddings (`sentence-transformers`)
+6. Upsert vectoriel dans Qdrant (cosinus)
+7. Classement hybride (dense + lexical + score d'intention/metadata)
+8. Politique de recherche selon la route d'intention (configs différentes par type de requête)
+9. Reranking cross-encoder optionnel (désactivé par défaut)
+10. Embedding de la question + recherche top-k
 
-### Main modules
+### Modules principaux
 
-- `rag/prepare.py`: extraction, normalization, chunking, artifact generation
-- `rag/index.py`: embedding + vector index build
-- `rag/search.py`: hybrid retrieval/reranking (dense + lexical + metadata intent matching)
-- `rag/pipeline.py`: orchestration helpers (`prepare_and_index`, `answer_question`)
-- `rag/vector_store.py`: Qdrant + in-memory vector stores
-- `rag/types.py`: configs, DTOs, reports
+- `rag/prepare.py`: extraction, normalisation, chunking, génération d'artefacts
+- `rag/index.py`: embeddings + construction d'index vectoriel
+- `rag/search.py`: retrieval/reranking hybride (dense + lexical + matching metadata)
+- `rag/pipeline.py`: orchestration (`prepare_and_index`, `answer_question`)
+- `rag/vector_store.py`: stores Qdrant + en mémoire
+- `rag/types.py`: configs, DTOs, rapports
 
-### Retrieval decision path
+### Chemin de décision du retrieval
 
-At query time, `search_top_k(...)` does:
-1. Build query profile (`codes`, `storage/safety/regulatory`, `activity`, broad)
-2. Apply route-specific config overrides (`candidate_pool`, weights, penalties)
-3. Dense candidate retrieval from vector store
-4. Hybrid scoring + constraints
-5. Optional reranker pass (if enabled)
-6. Return top-k (plus optional context neighbors)
+À l'exécution, `search_top_k(...)`:
+1. Construit le profil de requête (`codes`, `storage/safety/regulatory`, `activity`, broad)
+2. Applique les overrides de route (pool candidat, poids, pénalités)
+3. Fait la récupération dense depuis le vector store
+4. Applique le scoring hybride + contraintes
+5. Applique le reranker si activé
+6. Retourne le top-k (avec voisins de contexte optionnels)
 
-## 3. Repository Layout
+## 3. Structure du dépôt
 
 ```text
 RAG/
-  data/                  # input PDFs
-  artifacts/             # generated chunks/report
-  rag/                   # core package
+  data/                  # PDFs d'entrée
+  artifacts/             # chunks/rapports générés
+  rag/                   # package coeur
   scripts/run_indexing.py
   docker-compose.yml
   Dockerfile
@@ -79,9 +79,9 @@ RAG/
   tests/
 ```
 
-## 4. Core Public API
+## 4. API Publique Principale
 
-From `rag/__init__.py`:
+Depuis `rag/__init__.py`:
 
 - `prepare_documents(input_dir, output_dir, config) -> PrepReport`
 - `build_embeddings(chunks, cfg) -> tuple[ids, vectors, payloads]`
@@ -99,86 +99,86 @@ From `rag/__init__.py`:
 - `extract_structured_answer(question, text, max_chars=None) -> str`
 - `extract_structured_answer_with_score(question, text, max_chars=None) -> tuple[str, float]`
 
-### Important config objects
+### Objets de configuration importants
 
 - `PrepConfig`
-  - `chunk_size_tokens` (default `420`)
-  - `chunk_overlap_tokens` (default `60`)
-  - `min_chunk_tokens` (default `12`)
-  - `include_list_items` (default `False`)
-  - `dedup_across_docs` (default `True`)
-  - `enable_ocr_fallback` (default `True`)
-  - `ocr_lang` (default `eng+fra`)
+  - `chunk_size_tokens` (défaut `420`)
+  - `chunk_overlap_tokens` (défaut `60`)
+  - `min_chunk_tokens` (défaut `12`)
+  - `include_list_items` (défaut `False`)
+  - `dedup_across_docs` (défaut `True`)
+  - `enable_ocr_fallback` (défaut `True`)
+  - `ocr_lang` (défaut `eng+fra`)
 - `VectorConfig`
-  - `qdrant_url` (default `http://localhost:6333`)
-  - `collection_name` (default `rag_chunks`)
-  - `embedding_model` (default `models/paraphrase-multilingual-MiniLM-L12-v2`)
+  - `qdrant_url` (défaut `http://localhost:6333`)
+  - `collection_name` (défaut `rag_chunks`)
+  - `embedding_model` (défaut `models/paraphrase-multilingual-MiniLM-L12-v2`)
 - `SearchConfig`
-  - same runtime params as `VectorConfig`
-  - `context_window` (default `1`): adds neighboring chunks from same doc/page around each top hit
-  - `chunks_jsonl_path` (default `artifacts/chunks.jsonl`): source used to resolve neighbor order
-  - `fetch_multiplier` (default `3`): retrieves a larger candidate pool before selecting top hits
-  - `hybrid_enabled` (default `True`)
-  - `candidate_pool` (default `60`)
-  - `dense_weight`, `lexical_weight`, `field_weight` (defaults `0.58`, `0.32`, `0.10`)
-  - `diversity_enabled`, `diversity_penalty` (defaults `False`, `0.10`)
-  - `route_overrides_enabled` (default `True`)
-  - `reranker_enabled` (default `False`)
+  - mêmes paramètres runtime que `VectorConfig`
+  - `context_window` (défaut `1`): ajoute les chunks voisins même doc/page
+  - `chunks_jsonl_path` (défaut `artifacts/chunks.jsonl`): source pour résoudre l'ordre des voisins
+  - `fetch_multiplier` (défaut `3`): récupère plus de candidats avant sélection finale
+  - `hybrid_enabled` (défaut `True`)
+  - `candidate_pool` (défaut `60`)
+  - `dense_weight`, `lexical_weight`, `field_weight` (défauts `0.58`, `0.32`, `0.10`)
+  - `diversity_enabled`, `diversity_penalty` (défauts `False`, `0.10`)
+  - `route_overrides_enabled` (défaut `True`)
+  - `reranker_enabled` (défaut `False`)
 
-## 5. Quick Start (Docker, recommended)
+## 5. Démarrage Rapide (Docker recommandé)
 
-### Preconditions
+### Prérequis
 
-- Docker + Docker Compose installed.
-- Run commands from `ai-night/RAG` directory.
+- Docker + Docker Compose installés.
+- Exécuter les commandes depuis `ai-night/RAG`.
 
-### Start services
+### Démarrer les services
 
 ```bash
 docker compose up -d --build
 ```
 
-This starts:
-- `qdrant` on `localhost:6333`
-- `rag-indexer` job container that runs direct PDF indexing + embeddings (no prepare artifact step)
+Cela démarre:
+- `qdrant` sur `localhost:6333`
+- le job `rag-indexer` qui exécute l'indexation PDF + embeddings
 
-### Cache the default embedder locally (one-time)
+### Mettre en cache l'embedder par défaut (une fois)
 
 ```bash
 python3 scripts/cache_best_embedder.py
 ```
 
-After this, local runs use `models/paraphrase-multilingual-MiniLM-L12-v2` by default.
+Ensuite, les runs locaux utilisent `models/paraphrase-multilingual-MiniLM-L12-v2` par défaut.
 
-### Optional: cache cross-encoder reranker locally (one-time)
+### Mettre en cache le reranker cross-encoder (optionnel, une fois)
 
 ```bash
 python3 scripts/cache_reranker_model.py
 ```
 
-Default runtime keeps reranker disabled. Enable only after benchmark verification.
+Le reranker reste désactivé par défaut.
 
-### Follow indexing logs
+### Suivre les logs d'indexation
 
 ```bash
 docker compose logs -f rag-indexer
 ```
 
-Successful end state includes:
+Résultat attendu:
 - `Preparation report: ...`
 - `Index report: IndexReport(collection_name='rag_chunks', vectors_upserted=...)`
 
-### Validate collection in Qdrant
+### Vérifier la collection dans Qdrant
 
 ```bash
 curl -s http://localhost:6333/collections
 ```
 
-You should see `rag_chunks` in the response.
+Vous devez voir `rag_chunks` dans la réponse.
 
-## 6. Query Indexed Data
+## 6. Interroger les Données Indexées
 
-Run from `ai-night/RAG`:
+Depuis `ai-night/RAG`:
 
 ```bash
 python3 - <<'PY'
@@ -208,12 +208,11 @@ for r in resp.results:
 PY
 ```
 
-Note: `search_top_k(..., k=3, ...)` now returns the 3 semantic hits plus optional context neighbors
-when `context_window > 0`, so total returned items can be greater than `k`.
+Note: `search_top_k(..., k=3, ...)` peut retourner plus de 3 éléments si `context_window > 0`.
 
-## 7. Local Python Run (without Docker indexer)
+## 7. Exécution Locale Python (sans indexer Docker)
 
-### Create and activate a venv
+### Créer et activer un venv
 
 ```bash
 python3 -m venv .venv
@@ -221,13 +220,13 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Start only Qdrant via Docker
+### Démarrer uniquement Qdrant
 
 ```bash
 docker compose up -d qdrant
 ```
 
-### Run pipeline from Python (classic direct mode)
+### Exécuter la pipeline en Python
 
 ```bash
 python3 - <<'PY'
@@ -249,13 +248,13 @@ print(resp.results[0].text if resp.results else "no results")
 PY
 ```
 
-## 8. Generated Artifacts
+## 8. Artefacts Générés
 
-After preparation:
+Après préparation:
 - `artifacts/chunks.jsonl`
 - `artifacts/prep_report.json`
 
-### `chunks.jsonl` schema (per line)
+### Schéma `chunks.jsonl` (par ligne)
 
 - `chunk_id`
 - `doc_id`
@@ -263,27 +262,25 @@ After preparation:
 - `page`
 - `section`
 - `chunk_type` (`paragraph`, `list_item`, `table_kv`)
-- `text` (normalized for embedding)
-- `text_raw` (original normalized source)
+- `text` (normalisé pour embedding)
+- `text_raw` (source normalisée d'origine)
 - `lang` (`fr`, `en`, `mixed`)
-- `metadata` (units, fields, etc.)
+- `metadata` (unités, champs, etc.)
 
-## 9. Testing
+## 9. Tests
 
-Run unit tests from `ai-night/RAG`:
+Exécuter les tests unitaires depuis `ai-night/RAG`:
 
 ```bash
 PYTHONPATH=. pytest -q
 ```
 
-Current tests cover:
-- table normalization to semantic key/value chunks,
-- atomic table chunk behavior,
-- indexing + top-k ranking behavior.
+Couverture actuelle:
+- normalisation des tableaux en chunks clé/valeur sémantiques,
+- comportement atomique des chunks de table,
+- indexation + classement top-k.
 
-### Retrieval score report (for regression tracking)
-
-To track whether your model/search changes are improving retrieval over time, run:
+### Rapport de score retrieval (suivi régression)
 
 ```bash
 cd /home/nader/Projects/hackathons/ai-night/RAG
@@ -295,18 +292,13 @@ PYTHONPATH=. python3 tests/run_eval_audit.py \
   --run-name human_queries
 ```
 
-This writes:
-- `artifacts/eval_audit_report_human.json` with retrieval metrics (`hit_at_3`, `hit_at_10`, `mrr_at_3`, `score`) and answer-accuracy metrics (`answer_score_top1_mean`, `answer_score_top3_mean`, `answer_exact_match_top1_rate`, `answer_numeric_match_top1_rate`, `answer_score`)
-- `artifacts/eval_score_history.jsonl` with one row per run
+Ce rapport écrit:
+- `artifacts/eval_audit_report_human.json` avec métriques retrieval (`hit_at_3`, `hit_at_10`, `mrr_at_3`, `score`) et métriques answer (`answer_score_top1_mean`, `answer_score_top3_mean`, `answer_exact_match_top1_rate`, `answer_numeric_match_top1_rate`, `answer_score`)
+- `artifacts/eval_score_history.jsonl` avec une ligne par run
 
-The report includes `delta_vs_previous` so you can immediately see improvement/regression versus the last matching run (`eval_set` + `model_name` + `run_name`).
-For observability, each query row in `details` now includes:
-- `expected_supporting`: expected answers with `source_file` + `page`
-- `retrieved_top3`: retrieved document hits with scores and `answer_excerpt`
-- `predicted_answer`: compact answer text from the top retrieved hit
-- `answer_eval`: deterministic top-1 and best-of-top3 answer scoring diagnostics
+Le rapport inclut `delta_vs_previous` pour visualiser immédiatement les régressions/progrès.
 
-### Evaluate on the 100-query set
+### Évaluer sur le jeu 100 requêtes
 
 ```bash
 cd /home/nader/Projects/hackathons/ai-night/RAG
@@ -318,9 +310,7 @@ RAG_EMBEDDING_LOCAL_ONLY=1 PYTHONPATH=. python3 tests/run_eval_audit.py \
   --run-name human_100
 ```
 
-The 100-query report now includes the same retrieval + answer-accuracy metrics and per-query `answer_eval` diagnostics.
-
-### Run full route-config sweep
+### Exécuter un sweep complet des routes
 
 ```bash
 cd /home/nader/Projects/hackathons/ai-night/RAG
@@ -330,111 +320,104 @@ RAG_EMBEDDING_LOCAL_ONLY=1 CUDA_VISIBLE_DEVICES='' PYTHONPATH=. python3 tests/ru
   --model models/paraphrase-multilingual-MiniLM-L12-v2
 ```
 
-## 10. What Is Unique Here
+## 10. Points Différenciants
 
-### 1) Route-aware retrieval defaults (not one global config)
-- Query intent routing is built into default retrieval:
+### 1) Retrieval orienté routes (pas une config globale unique)
+- Routage par intention:
   - `code_specific`
   - `compliance_storage_safety`
   - `activity`
   - `broad_semantic`
-- Each route uses its own tuned candidate pool/weights/penalties.
+- Chaque route a ses poids/pénalités/pools dédiés.
 
-### 2) Evidence-first observability
-- Per-query report includes expected docs/answers and retrieved top-3 evidence with scores and answer excerpts.
-- Makes ranking/debugging auditable instead of "black box".
+### 2) Observabilité orientée preuves
+- Rapport par requête avec docs/réponses attendues et top-3 récupéré avec scores et extraits.
 
-### 3) Benchmarked quality gains from routing
-- On 44-query human set:
-  - baseline (single global config): `hit@3=0.7955`, `mrr@3=0.7538`
-  - routed default (full sweep best): `hit@3=0.8409`, `mrr@3=0.7576`
-  - delta: `+0.0455 hit@3`, `+0.0038 mrr@3`
-- On 100-query set with current defaults:
+### 3) Gains de qualité mesurés
+- Sur 44 requêtes humaines:
+  - baseline: `hit@3=0.7955`, `mrr@3=0.7538`
+  - default routé: `hit@3=0.8409`, `mrr@3=0.7576`
+- Sur 100 requêtes:
   - `hit@3=0.91`
   - `mrr@3=0.8933`
 
-### 4) Retrieval speed (measured)
-- Local benchmark on 100 queries (in-memory vector store, CPU, local embedder):
+### 4) Vitesse de retrieval (mesurée)
+- Benchmark local 100 requêtes (store mémoire, CPU):
   - avg `45.2 ms/query`
   - median `44.9 ms`
   - p95 `59.1 ms`
   - p99 `72.5 ms`
-- Exact numbers depend on hardware/runtime mode (Qdrant vs in-memory, CPU/GPU), but this provides a reproducible reference.
-## 11. Troubleshooting
 
-### `docker compose up` says "no configuration file provided"
+## 11. Dépannage
 
-You are not in the project directory containing `docker-compose.yml`.
+### `docker compose up` dit "no configuration file provided"
 
-Fix:
+Vous n'êtes pas dans le dossier contenant `docker-compose.yml`.
+
+Correctif:
 - `cd /home/nader/Projects/hackathons/ai-night/RAG`
-- or use `docker compose -f /home/nader/Projects/hackathons/ai-night/RAG/docker-compose.yml up -d`
+- ou `docker compose -f /home/nader/Projects/hackathons/ai-night/RAG/docker-compose.yml up -d`
 
-### Qdrant reachable but no results
+### Qdrant joignable mais aucun résultat
 
-- Check collection exists: `curl -s http://localhost:6333/collections`
-- Re-run indexing job: `docker compose run --rm rag-indexer`
-- Inspect logs: `docker compose logs -f rag-indexer`
+- Vérifier la collection: `curl -s http://localhost:6333/collections`
+- Relancer l'indexation: `docker compose run --rm rag-indexer`
+- Inspecter les logs: `docker compose logs -f rag-indexer`
 
-### OCR not used
+### OCR non utilisé
 
-OCR triggers only when extracted text is empty or below threshold.
-Adjust `PrepConfig(min_text_chars_for_page=..., enable_ocr_fallback=True)`.
+L'OCR se déclenche seulement si le texte extrait est vide/trop court.
 
-## 12. Integration Notes (for API teams)
+## 12. Notes d'Intégration (équipes API)
 
-Recommended service boundaries:
-- Startup job or endpoint: call `prepare_and_index(...)`
-- Query endpoint: call `search_top_k(question, 3, SearchConfig(...))`
+Frontières de service recommandées:
+- endpoint/job de startup: `prepare_and_index(...)`
+- endpoint de requête: `search_top_k(question, 3, SearchConfig(...))`
 
-The module is already function-based and dependency-injectable via:
+Injection de dépendances disponible via:
 - `VectorConfig(embedder=..., vector_store=...)`
 - `SearchConfig(embedder=..., vector_store=...)`
 
-This makes it straightforward to swap embedding providers or vector stores without rewriting business logic.
+## 13. Notes Retrieval Enterprise
 
-## 13. Enterprise Retrieval Notes
-
-- Preparation now emits richer table metadata (`product_type`, `product_type_canonical`, `dosage`, `dosage_unit`) to improve intent-aware ranking.
-- Cross-document deduplication removes repetitive table rows that otherwise dominate results.
-- Retrieval uses a Qdrant-only hybrid score:
-  - cosine dense similarity,
-  - lexical token overlap,
-  - metadata/intent field boosts (example: bread queries favor bread/panification chunks).
-- Returned objects contain audit-ready evidence:
+- La préparation émet des metadata enrichies (`product_type`, `product_type_canonical`, `dosage`, `dosage_unit`).
+- La dédup inter-doc réduit les lignes répétitives.
+- Le scoring hybride combine:
+  - similarité dense cosinus,
+  - overlap lexical,
+  - boosts metadata/intention.
+- Les objets retournés incluent:
   - source (`doc_id`, `page`, `chunk_id`),
-  - `dense_score`, `lex_score`, `field_score`, and `final_score`.
+  - `dense_score`, `lex_score`, `field_score`, `final_score`.
 
 ## 14. FastAPI + React UI (Semantic Atlas)
 
-This repository now includes:
-- `backend/`: a minimal FastAPI wrapper over existing `search_top_k` logic.
-- `frontend/`: a Vite + React + Tailwind UI for querying top-3 semantic matches.
+Ce dépôt inclut:
+- `backend/`: wrapper FastAPI autour de `search_top_k`
+- `frontend/`: UI Vite + React + Tailwind
 
-### Launch full stack (recommended)
-
-Use the project launcher script to start everything in one command:
+### Lancer la stack complète (recommandé)
 
 ```bash
 cd /home/nader/Projects/hackathons/ai-night/RAG
 bash scripts/launch_all.sh
 ```
 
-By default, this script:
-- starts `qdrant` (`docker compose up -d qdrant`)
-- runs `rag-indexer` once (`docker compose run --rm rag-indexer`)
-- starts backend API on `http://localhost:8000`
-- starts frontend on `http://localhost:5173`
+Par défaut:
+- démarre `qdrant`
+- exécute `rag-indexer` une fois
+- démarre l'API backend sur `http://localhost:8000`
+- démarre le frontend sur `http://localhost:5173`
 
-Optional overrides:
+Overrides optionnels:
 
 ```bash
 START_INDEXER=0 BACKEND_PORT=8001 FRONTEND_PORT=5174 bash scripts/launch_all.sh
 ```
 
-Press `Ctrl+C` to stop backend/frontend processes. Qdrant keeps running in Docker.
+`Ctrl+C` arrête backend/frontend; Qdrant reste actif dans Docker.
 
-### Backend run
+### Lancer le backend
 
 ```bash
 cd /home/nader/Projects/hackathons/ai-night/RAG
@@ -445,13 +428,13 @@ pip install -r backend/requirements.txt
 python -m uvicorn backend.main:app --reload --port 8000
 ```
 
-Health check:
+Vérification de santé:
 
 ```bash
 curl -s http://localhost:8000/health
 ```
 
-### Frontend run
+### Lancer le frontend
 
 ```bash
 cd /home/nader/Projects/hackathons/ai-night/RAG/frontend
@@ -459,14 +442,13 @@ npm install
 npm run dev
 ```
 
-The frontend reads `VITE_API_BASE_URL` from `frontend/.env` (default `http://localhost:8000`).
-Build tooling can generate local files such as `vite.config.js`, `tailwind.config.js`, and `*.tsbuildinfo`; they are intentionally ignored and should not be committed.
+Le frontend lit `VITE_API_BASE_URL` depuis `frontend/.env` (défaut `http://localhost:8000`).
 
-### Endpoint contract
+### Contrat d'API
 
 `POST /search`
 
-Request:
+Requête:
 
 ```json
 {
@@ -474,7 +456,7 @@ Request:
 }
 ```
 
-Response:
+Réponse:
 
 ```json
 {
@@ -491,10 +473,9 @@ Response:
 }
 ```
 
-`score` is a combined confidence: `0.35 * retrieval_score + 0.65 * answer_score`.
+`score` est un score combiné: `0.35 * retrieval_score + 0.65 * answer_score`.
 
-### CORS / port troubleshooting
+### CORS / ports
 
-- If browser calls fail with CORS, confirm backend is running on `http://localhost:8000` and frontend on `http://localhost:5173`.
-- Backend currently allows `http://localhost:5173` by default in CORS middleware.
-- If you run Vite on another port, add that origin to `allow_origins` in `backend/main.py`.
+- Si appels navigateur en échec (CORS), vérifier backend `http://localhost:8000` et frontend `http://localhost:5173`.
+- Si frontend sur un autre port, ajouter l'origine dans `allow_origins` de `backend/main.py`.
