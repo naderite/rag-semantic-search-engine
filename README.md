@@ -1,24 +1,35 @@
 # Semantic PDF RAG Pipeline
 
-Production-oriented, function-based pipeline to:
-- prepare noisy PDF content (including tables) for embeddings,
-- run classic direct PDF-to-embedding indexing (no artifact preparation step),
-- index chunks into Qdrant with cosine similarity,
-- retrieve the top-k most relevant chunks for a natural language query.
+Dans un contexte où une base documentaire contient un grand volume d'informations
+(rapports, procédures, recommandations, cas d'usage, etc.), les utilisateurs
+rencontrent des difficultés à identifier rapidement les passages réellement pertinents
+pour répondre à leur question.
 
-This project is designed to be consumed by an API layer later (no CLI dependency required in core logic).
+L'objectif de ce projet est de développer un module intelligent capable d'assister
+l'utilisateur en retrouvant automatiquement les fragments les plus pertinents à partir
+d'une question formulée en langage naturel.
 
 ## 1. What This Solves
 
-Document bases with technical PDFs often contain:
-- repeated headers/footers,
-- table-heavy pages,
-- mixed French/English content,
-- formatting artifacts that degrade embedding quality.
+Le module doit:
 
-This pipeline normalizes those inputs into embedding-friendly `JSONL` chunks and supports semantic retrieval (`top-k` + score + source metadata).
+- Recevoir une question utilisateur
+- Générer son embedding sémantique
+- Comparer cette représentation aux embeddings des fragments stockés en base via similarité cosinus
+- Classer les résultats par ordre décroissant de pertinence
+- Retourner les trois fragments les plus pertinents
+- Afficher pour chacun:
+  - le texte du fragment
+  - le score de similarité
 
-Retrieval principle: the module embeds the user question, retrieves candidates via cosine similarity against indexed fragment embeddings, then ranks and returns the top-3 most relevant fragments (`text` + `score`).
+Ce module vise ainsi à améliorer la recherche d'information en privilégiant la
+proximité sémantique plutôt qu'une simple correspondance lexicale.
+
+En pratique, ce dépôt fournit une pipeline orientée production pour:
+- préparer des PDF bruités (dont tableaux) pour l'indexation vectorielle
+- exécuter une indexation directe PDF -> embeddings
+- indexer les chunks dans Qdrant avec la similarité cosinus
+- récupérer les fragments les plus pertinents pour une question en langage naturel
 
 ## 2. Architecture
 
