@@ -5,6 +5,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from rag.answer_cleaning import build_presentable_answer, strip_boilerplate_text
+from rag.answer_structure import extract_structured_answer
 from rag.index import build_vector_index
 from rag.pipeline import index_pdfs_directly
 from rag.prepare import chunk_blocks, direct_chunks_from_blocks, normalize_blocks
@@ -29,6 +31,64 @@ class FakeEmbedder:
 
 
 class RagModuleTests(unittest.TestCase):
+    def test_strip_boilerplate_signature_keeps_useful_content(self) -> None:
+        raw = (
+            "VTR&beyond No.8, Pingbei Rd1, Science and Technology Industry Zone, Nanping, Zhuhai, Guangdong, China.\n"
+            "Stresemann str.25.10963 Berlin, Germany Tel: 86-756-8676888 Mail: info@vtrbeyond.com Website: www.vtrbeyond.com\n"
+            "TECHNICAL DATA SHEET\n"
+            "Bread Improvement 10-70 ppm. Suggested optimum dosage 15-35 ppm."
+        )
+        cleaned, meta = strip_boilerplate_text(raw, mode="hybrid", min_remaining_tokens=4)
+        self.assertTrue(meta["boilerplate_removed"])
+        self.assertIn("Bread Improvement 10-70 ppm", cleaned)
+        self.assertNotIn("Pingbei", cleaned)
+
+    def test_strip_boilerplate_safety_reverts_when_too_short(self) -> None:
+        raw = "Tel: +49 30 52014173 Mail: info@vtrbeyond.com Website: www.vtrbeyond.com"
+        cleaned, meta = strip_boilerplate_text(raw, mode="hybrid", min_remaining_tokens=20)
+        self.assertEqual(cleaned, raw)
+        self.assertFalse(meta["boilerplate_removed"])
+
+    def test_build_presentable_answer_uses_non_boilerplate_span(self) -> None:
+        raw = (
+            "VTR&beyond No.8, Pingbei Rd1, Nanping, Zhuhai, China. "
+            "Website: www.vtrbeyond.com TECHNICAL DATA SHEET. "
+            "Suggested optimum dosage is 15-35 ppm for bread improvement."
+        )
+        text = build_presentable_answer(
+            question="What is the suggested optimum dosage for bread?",
+            text=raw,
+            max_chars=180,
+        )
+        self.assertIn("15-35 ppm", text)
+        self.assertNotIn("Pingbei", text)
+
+    def test_build_presentable_answer_cleans_pipe_artifacts(self) -> None:
+        raw = "FOOD SAFTY DATA | | | | Microbiology | | Salmonella: absent in 25g |"
+        text = build_presentable_answer(question="safety?", text=raw, max_chars=None)
+        self.assertNotIn("| | | |", text)
+        self.assertNotIn("| |", text)
+        self.assertNotIn("|", text)
+        self.assertIn("Salmonella: absent in 25g", text)
+
+    def test_extract_structured_answer_dosage_from_real_helper(self) -> None:
+        text = "Product info. Dosage 5-40 ppm. Additional notes."
+        out = extract_structured_answer("what dosage range is recommended?", text)
+        self.assertEqual(out, "dosage: 5-40 ppm")
+
+    def test_extract_structured_answer_storage_from_real_helper(self) -> None:
+        text = "Date of minimum durability: 24 months. Store in a cool, dry place below 20C."
+        out = extract_structured_answer("what are storage conditions and shelf life?", text)
+        self.assertIn("shelf life: 24 months", out)
+        self.assertIn("temperature: 20 c", out)
+
+    def test_extract_structured_answer_cleans_table_like_pipe_text(self) -> None:
+        text = "FOOD SAFTY DATA | | | | Microbiology | | Total plate count: <50 000UFC per g | | Salmonella: absent in 25g |"
+        out = extract_structured_answer("show safety data", text)
+        self.assertNotIn("|", out)
+        self.assertIn("Microbiology", out)
+        self.assertIn("Salmonella: absent in 25g", out)
+
     def test_table_normalization_to_kv(self) -> None:
         blocks = [
             RawPageBlock(
@@ -171,6 +231,25 @@ class RagModuleTests(unittest.TestCase):
         self.assertGreaterEqual(len(chunks), 3)
         self.assertTrue(all(c.chunk_type == "paragraph" for c in chunks))
         self.assertTrue(all(c.metadata.get("source_block_type") == "paragraph" for c in chunks))
+
+    def test_direct_chunks_from_blocks_records_boilerplate_removal(self) -> None:
+        blocks = [
+            RawPageBlock(
+                doc_id="doc2",
+                file_name="doc2.pdf",
+                page=1,
+                block_type="paragraph",
+                text=(
+                    "VTR&beyond No.8, Pingbei Rd1, Zhuhai, China. "
+                    "Mail: info@vtrbeyond.com Website: www.vtrbeyond.com TECHNICAL DATA SHEET "
+                    + " ".join(["dosage"] * 20)
+                ),
+            )
+        ]
+        cfg = PrepConfig(chunk_size_tokens=40, chunk_overlap_tokens=5, min_chunk_tokens=5, dedup_across_docs=False)
+        chunks = direct_chunks_from_blocks(blocks=blocks, config=cfg)
+        self.assertTrue(chunks)
+        self.assertTrue(any(bool(c.metadata.get("boilerplate_removed")) for c in chunks))
 
     def test_index_pdfs_directly_without_prepare_step(self) -> None:
         store = InMemoryVectorStore()

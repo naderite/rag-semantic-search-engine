@@ -82,6 +82,11 @@ From `rag/__init__.py`:
 - `answer_question(question, search_config, top_k=6)`
 - `load_chunks_jsonl(jsonl_path) -> list[ChunkRecord]`
 - `run_quality_eval(cases, search_config, top_k=3) -> QualityEvalReport`
+- `normalize_unit_string(text) -> str`
+- `normalize_answer_text(text) -> str`
+- `detect_query_intent(question) -> str`
+- `extract_structured_answer(question, text, max_chars=None) -> str`
+- `extract_structured_answer_with_score(question, text, max_chars=None) -> tuple[str, float]`
 
 ### Important config objects
 
@@ -257,7 +262,7 @@ After preparation:
 Run unit tests from `ai-night/RAG`:
 
 ```bash
-python3 -m unittest discover -s tests -v
+PYTHONPATH=. pytest -q
 ```
 
 Current tests cover:
@@ -279,7 +284,7 @@ PYTHONPATH=. python3 tests/run_eval_audit.py \
 ```
 
 This writes:
-- `artifacts/eval_audit_report_human.json` with `hit_at_3`, `hit_at_10`, `mrr_at_3`, and an aggregate `score`
+- `artifacts/eval_audit_report_human.json` with retrieval metrics (`hit_at_3`, `hit_at_10`, `mrr_at_3`, `score`) and answer-accuracy metrics (`answer_score_top1_mean`, `answer_score_top3_mean`, `answer_exact_match_top1_rate`, `answer_numeric_match_top1_rate`, `answer_score`)
 - `artifacts/eval_score_history.jsonl` with one row per run
 
 The report includes `delta_vs_previous` so you can immediately see improvement/regression versus the last matching run (`eval_set` + `model_name` + `run_name`).
@@ -287,6 +292,7 @@ For observability, each query row in `details` now includes:
 - `expected_supporting`: expected answers with `source_file` + `page`
 - `retrieved_top3`: retrieved document hits with scores and `answer_excerpt`
 - `predicted_answer`: compact answer text from the top retrieved hit
+- `answer_eval`: deterministic top-1 and best-of-top3 answer scoring diagnostics
 
 ### Evaluate on the 100-query set
 
@@ -298,6 +304,8 @@ RAG_EMBEDDING_LOCAL_ONLY=1 PYTHONPATH=. python3 tests/run_eval_audit.py \
   --model-name models/paraphrase-multilingual-MiniLM-L12-v2 \
   --run-name human_100
 ```
+
+The 100-query report now includes the same retrieval + answer-accuracy metrics and per-query `answer_eval` diagnostics.
 
 ### Run full route-config sweep
 
@@ -390,6 +398,29 @@ This repository now includes:
 - `backend/`: a minimal FastAPI wrapper over existing `search_top_k` logic.
 - `frontend/`: a Vite + React + Tailwind UI for querying top-3 semantic matches.
 
+### Launch full stack (recommended)
+
+Use the project launcher script to start everything in one command:
+
+```bash
+cd /home/nader/Projects/hackathons/ai-night/RAG
+bash scripts/launch_all.sh
+```
+
+By default, this script:
+- starts `qdrant` (`docker compose up -d qdrant`)
+- runs `rag-indexer` once (`docker compose run --rm rag-indexer`)
+- starts backend API on `http://localhost:8000`
+- starts frontend on `http://localhost:5173`
+
+Optional overrides:
+
+```bash
+START_INDEXER=0 BACKEND_PORT=8001 FRONTEND_PORT=5174 bash scripts/launch_all.sh
+```
+
+Press `Ctrl+C` to stop backend/frontend processes. Qdrant keeps running in Docker.
+
 ### Backend run
 
 ```bash
@@ -416,6 +447,7 @@ npm run dev
 ```
 
 The frontend reads `VITE_API_BASE_URL` from `frontend/.env` (default `http://localhost:8000`).
+Build tooling can generate local files such as `vite.config.js`, `tailwind.config.js`, and `*.tsbuildinfo`; they are intentionally ignored and should not be committed.
 
 ### Endpoint contract
 
@@ -435,9 +467,9 @@ Response:
 {
   "question": "Quel dosage recommande pour le pain ?",
   "results": [
-    { "text": "...", "score": 0.87, "rank": 1 },
-    { "text": "...", "score": 0.82, "rank": 2 },
-    { "text": "...", "score": 0.78, "rank": 3 }
+    { "text": "...", "score": 0.87, "retrieval_score": 0.73, "answer_score": 0.95, "rank": 1 },
+    { "text": "...", "score": 0.82, "retrieval_score": 0.68, "answer_score": 0.91, "rank": 2 },
+    { "text": "...", "score": 0.78, "retrieval_score": 0.66, "answer_score": 0.86, "rank": 3 }
   ],
   "meta": {
     "k": 3,
@@ -445,6 +477,8 @@ Response:
   }
 }
 ```
+
+`score` is a combined confidence: `0.35 * retrieval_score + 0.65 * answer_score`.
 
 ### CORS / port troubleshooting
 

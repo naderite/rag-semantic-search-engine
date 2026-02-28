@@ -3,17 +3,21 @@ from __future__ import annotations
 import logging
 import math
 import time
+from functools import lru_cache
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 
 from rag.answer_structure import extract_structured_answer_with_score
+from rag.embeddings import SentenceTransformerEmbedder
 from rag import SearchConfig, search_top_k
+from rag.vector_store import QdrantVectorStore
 
 logger = logging.getLogger("semantic_atlas_api")
 RETRIEVAL_SCORE_WEIGHT = 0.35
 ANSWER_SCORE_WEIGHT = 0.65
+RETRIEVAL_CANDIDATES = 10
 
 app = FastAPI(title="Semantic Atlas API", version="1.0.0")
 
@@ -62,6 +66,19 @@ class SearchResponse(BaseModel):
     meta: SearchMeta
 
 
+@lru_cache(maxsize=1)
+def get_search_config() -> SearchConfig:
+    return SearchConfig(
+        qdrant_url="http://localhost:6333",
+        collection_name="rag_chunks",
+        context_window=0,
+        chunks_jsonl_path="artifacts/chunks.jsonl",
+        answer_span_max_chars=None,
+        embedder=SentenceTransformerEmbedder("models/paraphrase-multilingual-MiniLM-L12-v2"),
+        vector_store=QdrantVectorStore(url="http://localhost:6333", collection_name="rag_chunks"),
+    )
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -73,16 +90,10 @@ def search(payload: SearchRequest) -> SearchResponse:
     logger.info("search.start question_len=%s", len(payload.question))
 
     try:
-        cfg = SearchConfig(
-            qdrant_url="http://localhost:6333",
-            collection_name="rag_chunks",
-            context_window=0,
-            chunks_jsonl_path="artifacts/chunks.jsonl",
-            answer_span_max_chars=None,
-        )
+        cfg = get_search_config()
         rag_response = search_top_k(
             question=payload.question,
-            k=3,
+            k=RETRIEVAL_CANDIDATES,
             cfg=cfg,
         )
     except ValueError as exc:
@@ -96,8 +107,8 @@ def search(payload: SearchRequest) -> SearchResponse:
 
     elapsed_ms = int((time.perf_counter() - started) * 1000)
 
-    results: list[SearchResultItem] = []
-    for idx, item in enumerate(rag_response.results[:3], start=1):
+    scored_rows: list[SearchResultItem] = []
+    for idx, item in enumerate(rag_response.results[:RETRIEVAL_CANDIDATES], start=1):
         text = item.text
         answer_score = 0.0
         if cfg.answer_span_fallback_enabled:
@@ -111,7 +122,7 @@ def search(payload: SearchRequest) -> SearchResponse:
         combined_score = (RETRIEVAL_SCORE_WEIGHT * retrieval_score) + (
             ANSWER_SCORE_WEIGHT * float(answer_score)
         )
-        results.append(
+        scored_rows.append(
             SearchResultItem(
                 text=text,
                 score=combined_score,
@@ -120,6 +131,11 @@ def search(payload: SearchRequest) -> SearchResponse:
                 rank=idx,
             )
         )
+    scored_rows.sort(key=lambda row: row.score, reverse=True)
+    results = [
+        SearchResultItem(**{**row.model_dump(), "rank": idx})
+        for idx, row in enumerate(scored_rows[:3], start=1)
+    ]
 
     response = SearchResponse(
         question=payload.question,

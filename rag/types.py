@@ -30,6 +30,9 @@ class PrepConfig:
     enable_doc_alias_canonicalization: bool = True
     emit_doc_catalog: bool = True
     section_keyword_mode: str = "multilingual_strict"
+    boilerplate_filter_enabled: bool = True
+    boilerplate_filter_mode: str = "hybrid"
+    boilerplate_min_remaining_tokens: int = 10
 
 
 @dataclass
@@ -68,6 +71,8 @@ class SearchConfig:
     reranker_model: str = "models/ms-marco-MiniLM-L-6-v2"
     reranker_top_n: int = 20
     reranker_weight: float = 0.35
+    answer_span_fallback_enabled: bool = True
+    answer_span_max_chars: int | None = None
 
 
 @dataclass

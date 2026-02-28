@@ -10,6 +10,7 @@ from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 
+from .answer_cleaning import strip_boilerplate_text
 from .types import ChunkRecord, NormalizedBlock, PrepConfig, PrepReport, RawPageBlock
 
 
@@ -84,7 +85,9 @@ def normalize_blocks(blocks: list[RawPageBlock], config: PrepConfig) -> list[Nor
             normalized.extend(_normalize_table_block(block, section))
             continue
 
-        cleaned = _rewrite_machine_phrases(_cleanup_text(block.text))
+        cleaned = _cleanup_text(block.text)
+        cleaned, clean_meta = _strip_block_boilerplate(cleaned, config)
+        cleaned = _rewrite_machine_phrases(cleaned)
         if not cleaned:
             continue
 
@@ -110,7 +113,7 @@ def normalize_blocks(blocks: list[RawPageBlock], config: PrepConfig) -> list[Nor
                         text=_normalize_for_embedding(line),
                         text_raw=line,
                         lang=_detect_lang(line),
-                        metadata={},
+                        metadata=clean_meta.copy(),
                     )
                 )
 
@@ -124,7 +127,7 @@ def normalize_blocks(blocks: list[RawPageBlock], config: PrepConfig) -> list[Nor
                 text=_normalize_for_embedding(body),
                 text_raw=body,
                 lang=_detect_lang(body),
-                metadata={},
+                metadata=clean_meta.copy(),
             )
         )
 
@@ -282,7 +285,9 @@ def direct_chunks_from_blocks(blocks: list[RawPageBlock], config: PrepConfig) ->
     step = max(1, config.chunk_size_tokens - config.chunk_overlap_tokens)
 
     for block in blocks:
-        cleaned = _normalize_for_embedding(_cleanup_text(block.text))
+        cleaned = _cleanup_text(block.text)
+        cleaned, clean_meta = _strip_block_boilerplate(cleaned, config)
+        cleaned = _normalize_for_embedding(cleaned)
         if len(cleaned) < config.min_text_chars_for_page:
             continue
 
@@ -312,6 +317,7 @@ def direct_chunks_from_blocks(blocks: list[RawPageBlock], config: PrepConfig) ->
                 metadata={
                     "source_block_type": block.block_type,
                     "window_start": start,
+                    **clean_meta,
                     **_extract_structured_metadata(
                         text=chunk_text,
                         doc_id=block.doc_id,
@@ -382,8 +388,19 @@ def _cleanup_text(text: str) -> str:
     return "\n".join(lines).strip()
 
 
+def _strip_block_boilerplate(text: str, config: PrepConfig) -> tuple[str, dict[str, int | bool]]:
+    if not config.boilerplate_filter_enabled:
+        return text, {"boilerplate_removed": False, "boilerplate_removed_chars": 0}
+    return strip_boilerplate_text(
+        text=text,
+        mode=config.boilerplate_filter_mode,
+        min_remaining_tokens=config.boilerplate_min_remaining_tokens,
+    )
+
+
 def _normalize_for_embedding(text: str) -> str:
     text = text.replace("：", ":")
+    text = re.sub(r"\b(?:[a-z]{0,2})?\s*technical\s+data\s+sheet\b", " ", text, flags=re.IGNORECASE)
     text = re.sub(r"(\d),(\d)", r"\1.\2", text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()

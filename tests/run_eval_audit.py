@@ -2,17 +2,31 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import unicodedata
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
+from rag.answer_structure import (
+    detect_query_intent,
+    extract_structured_answer as extract_structured_answer_runtime,
+    normalize_answer_text,
+)
+from rag.embeddings import SentenceTransformerEmbedder
 from rag.index import build_vector_index
 from rag.prepare import direct_chunks_from_pdfs
 from rag.search import search_top_k
 from rag.types import PrepConfig, SearchConfig, VectorConfig
 from rag.vector_store import InMemoryVectorStore
+
+ANSWER_TOKEN_F1_WEIGHT = 0.70
+ANSWER_EXACT_WEIGHT = 0.10
+ANSWER_NUMERIC_WEIGHT = 0.20
+
+ANSWER_SCORE_TOP1_WEIGHT = 0.70
+ANSWER_SCORE_TOP3_WEIGHT = 0.30
 
 
 class OfflineEvalEmbedder:
@@ -59,16 +73,171 @@ def load_eval_items(path: Path) -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def answer_excerpt(text: str, max_chars: int = 280) -> str:
-    cleaned = " ".join(text.split())
-    if len(cleaned) <= max_chars:
-        return cleaned
-    return cleaned[: max_chars - 3].rstrip() + "..."
+def extract_structured_answer(question: str, text: str, max_chars: int | None = None) -> str:
+    return extract_structured_answer_runtime(question=question, text=text, max_chars=max_chars)
+
+
+def canonicalize_answer_by_intent(question: str, text: str) -> str:
+    if not text:
+        return ""
+    intent = detect_query_intent(question)
+    structured = extract_structured_answer_runtime(question=question, text=text, max_chars=None)
+    norm = normalize_answer_text(structured)
+    if intent == "regulatory":
+        refs = re.findall(r"\b\d{3,4}/\d{4}\b", norm)
+        if refs:
+            return "regulations " + " ".join(sorted(set(refs)))
+    return norm
 
 
 def compute_eval_score(hit_at_3: float, mrr_at_3: float, hit_at_10: float) -> float:
     # Precision-first aggregate score for quick model iteration tracking.
     return (0.50 * hit_at_3) + (0.40 * mrr_at_3) + (0.10 * hit_at_10)
+
+
+def _answer_token_counter(text: str) -> Counter[str]:
+    norm = normalize_answer_text(text)
+    return Counter(tok for tok in norm.split() if tok)
+
+
+def answer_exact_match(predicted: str, expected: str) -> float:
+    if not predicted or not expected:
+        return 0.0
+    return 1.0 if normalize_answer_text(predicted) == normalize_answer_text(expected) else 0.0
+
+
+def answer_token_f1(predicted: str, expected: str) -> float:
+    pred = _answer_token_counter(predicted)
+    exp = _answer_token_counter(expected)
+    pred_n = sum(pred.values())
+    exp_n = sum(exp.values())
+    if pred_n == 0 or exp_n == 0:
+        return 0.0
+    overlap = sum((pred & exp).values())
+    if overlap == 0:
+        return 0.0
+    precision = overlap / pred_n
+    recall = overlap / exp_n
+    return (2.0 * precision * recall) / (precision + recall)
+
+
+def _extract_numeric_atoms(text: str) -> set[str]:
+    norm = normalize_answer_text(text)
+    out: set[str] = set()
+    for raw in re.findall(r"(?<![a-z0-9])\d[\d\s]*(?:[.,]\d+)?(?![a-z0-9])", norm):
+        compact = raw.replace(" ", "").replace(",", ".")
+        try:
+            value = float(compact)
+        except ValueError:
+            continue
+        # Normalize numeric text so 10, 10.0, and 10.00 match.
+        out.add(f"{value:.6f}".rstrip("0").rstrip("."))
+    return out
+
+
+def answer_numeric_f1(predicted: str, expected: str) -> float:
+    pred = _extract_numeric_atoms(predicted)
+    exp = _extract_numeric_atoms(expected)
+    if not exp:
+        return 1.0
+    if not pred:
+        return 0.0
+    overlap = len(pred & exp)
+    if overlap == 0:
+        return 0.0
+    precision = overlap / len(pred)
+    recall = overlap / len(exp)
+    return (2.0 * precision * recall) / (precision + recall)
+
+
+def answer_pair_score(predicted: str, expected: str, question: str = "") -> dict[str, float]:
+    exact_raw = answer_exact_match(predicted, expected)
+    token_raw = answer_token_f1(predicted, expected)
+    numeric_raw = answer_numeric_f1(predicted, expected)
+
+    if question:
+        predicted_canon = canonicalize_answer_by_intent(question, predicted)
+        expected_canon = canonicalize_answer_by_intent(question, expected)
+        exact = max(exact_raw, answer_exact_match(predicted_canon, expected_canon))
+        token = max(token_raw, answer_token_f1(predicted_canon, expected_canon))
+        numeric = max(numeric_raw, answer_numeric_f1(predicted_canon, expected_canon))
+    else:
+        exact = exact_raw
+        token = token_raw
+        numeric = numeric_raw
+
+    score = (
+        (ANSWER_TOKEN_F1_WEIGHT * token)
+        + (ANSWER_EXACT_WEIGHT * exact)
+        + (ANSWER_NUMERIC_WEIGHT * numeric)
+    )
+    return {
+        "score": score,
+        "token_f1": token,
+        "exact_match": exact,
+        "numeric_f1": numeric,
+    }
+
+
+def best_answer_match(predicted: str | None, expected_answers: list[str], question: str = "") -> dict:
+    if not predicted or not expected_answers:
+        return {
+            "score": 0.0,
+            "token_f1": 0.0,
+            "exact_match": 0.0,
+            "numeric_f1": 0.0,
+            "matched_expected_answer": None,
+            "predicted_answer": predicted,
+        }
+
+    best = {
+        "score": -1.0,
+        "token_f1": 0.0,
+        "exact_match": 0.0,
+        "numeric_f1": 0.0,
+        "matched_expected_answer": None,
+        "predicted_answer": predicted,
+    }
+    for expected in expected_answers:
+        current = answer_pair_score(predicted, expected, question=question)
+        if current["score"] > best["score"]:
+            best = {
+                **current,
+                "matched_expected_answer": expected,
+                "predicted_answer": predicted,
+            }
+
+    return best
+
+
+def best_of_topk_answer_match(predicted_answers: list[str], expected_answers: list[str], question: str = "") -> dict:
+    if not predicted_answers:
+        return {
+            "score": 0.0,
+            "token_f1": 0.0,
+            "exact_match": 0.0,
+            "numeric_f1": 0.0,
+            "matched_expected_answer": None,
+            "predicted_answer": None,
+        }
+
+    best = {
+        "score": -1.0,
+        "token_f1": 0.0,
+        "exact_match": 0.0,
+        "numeric_f1": 0.0,
+        "matched_expected_answer": None,
+        "predicted_answer": None,
+    }
+    for predicted in predicted_answers:
+        current = best_answer_match(predicted=predicted, expected_answers=expected_answers, question=question)
+        if current["score"] > best["score"]:
+            best = current
+    return best
+
+
+def compute_answer_score(answer_score_top1_mean: float, answer_score_top3_mean: float) -> float:
+    return (ANSWER_SCORE_TOP1_WEIGHT * answer_score_top1_mean) + (ANSWER_SCORE_TOP3_WEIGHT * answer_score_top3_mean)
 
 
 def load_history(path: Path) -> list[dict]:
@@ -110,11 +279,12 @@ def select_previous_run(history: list[dict], eval_set: str, model_name: str, run
 
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
-    parser = argparse.ArgumentParser(description="Run offline retrieval audit on eval query JSON.")
+    parser = argparse.ArgumentParser(description="Run retrieval audit on eval query JSON.")
     parser.add_argument("--eval-path", default=str(root / "tests" / "pdf_eval_queries_top3.json"))
     parser.add_argument("--output", default=str(root / "artifacts" / "eval_audit_report.json"))
     parser.add_argument("--history-path", default=str(root / "artifacts" / "eval_score_history.jsonl"))
-    parser.add_argument("--model-name", default="offline_eval_embedder")
+    parser.add_argument("--embedding-model", default="models/paraphrase-multilingual-MiniLM-L12-v2")
+    parser.add_argument("--model-name", default=None)
     parser.add_argument("--run-name", default="default")
     args = parser.parse_args()
 
@@ -125,12 +295,17 @@ def main() -> None:
 
     items = load_eval_items(eval_path)
 
+    os.environ.setdefault("RAG_EMBEDDING_LOCAL_ONLY", "1")
     store = InMemoryVectorStore()
-    embedder = OfflineEvalEmbedder()
+    embedder = SentenceTransformerEmbedder(args.embedding_model)
+    tracking_model_name = args.model_name or args.embedding_model
 
     chunks, prep_report = direct_chunks_from_pdfs(str(data_dir), PrepConfig())
-    index_report = build_vector_index(chunks, VectorConfig(vector_store=store, embedder=embedder))
-    cfg = SearchConfig(vector_store=store, embedder=embedder, context_window=0)
+    index_report = build_vector_index(
+        chunks,
+        VectorConfig(vector_store=store, embedder=embedder, embedding_model=args.embedding_model),
+    )
+    cfg = SearchConfig(vector_store=store, embedder=embedder, embedding_model=args.embedding_model, context_window=0)
 
     hit_at_3 = 0
     rr_sum = 0.0
@@ -139,6 +314,10 @@ def main() -> None:
     false_top1 = Counter()
     retrieval_bottlenecks = 0
     rerank_bottlenecks = 0
+    answer_score_top1_sum = 0.0
+    answer_score_top3_sum = 0.0
+    answer_exact_top1_count = 0
+    answer_numeric_top1_count = 0
 
     detailed = []
 
@@ -192,7 +371,7 @@ def main() -> None:
                 "lex_score": r.lex_score,
                 "field_score": r.field_score,
                 "matched_terms": r.matched_terms,
-                "answer_excerpt": answer_excerpt(r.text),
+                "answer_excerpt": extract_structured_answer(question=question, text=r.text),
             }
             for r in resp3.results
         ]
@@ -205,6 +384,24 @@ def main() -> None:
             }
             for row in expected_rows
         ]
+        expected_answers = [row["candidate_answer"] for row in expected_rows if isinstance(row.get("candidate_answer"), str)]
+        predicted_answer = retrieved_top3[0]["answer_excerpt"] if retrieved_top3 else None
+        predicted_top3_answers = [row["answer_excerpt"] for row in retrieved_top3 if row.get("answer_excerpt")]
+        answer_eval_top1 = best_answer_match(
+            predicted=predicted_answer,
+            expected_answers=expected_answers,
+            question=question,
+        )
+        answer_eval_top3 = best_of_topk_answer_match(
+            predicted_answers=predicted_top3_answers,
+            expected_answers=expected_answers,
+            question=question,
+        )
+
+        answer_score_top1_sum += float(answer_eval_top1["score"])
+        answer_score_top3_sum += float(answer_eval_top3["score"])
+        answer_exact_top1_count += int(answer_eval_top1["exact_match"] >= 1.0)
+        answer_numeric_top1_count += int(answer_eval_top1["numeric_f1"] >= 1.0)
 
         detailed.append(
             {
@@ -215,7 +412,11 @@ def main() -> None:
                 "top3": ranked3,
                 "expected_supporting": expected_supporting,
                 "retrieved_top3": retrieved_top3,
-                "predicted_answer": retrieved_top3[0]["answer_excerpt"] if retrieved_top3 else None,
+                "predicted_answer": predicted_answer,
+                "answer_eval": {
+                    "top1": answer_eval_top1,
+                    "top3_best": answer_eval_top3,
+                },
                 "hit3": hit3,
                 "hit10": hit10,
                 "rr": rr,
@@ -228,6 +429,11 @@ def main() -> None:
     hit10_value = hit_at_10 / total
     mrr3_value = rr_sum / total
     score_value = compute_eval_score(hit3_value, mrr3_value, hit10_value)
+    answer_score_top1_mean = answer_score_top1_sum / total
+    answer_score_top3_mean = answer_score_top3_sum / total
+    answer_exact_match_top1_rate = answer_exact_top1_count / total
+    answer_numeric_match_top1_rate = answer_numeric_top1_count / total
+    answer_score_value = compute_answer_score(answer_score_top1_mean, answer_score_top3_mean)
 
     history_path = Path(args.history_path)
     if not history_path.is_absolute():
@@ -238,7 +444,7 @@ def main() -> None:
     previous = select_previous_run(
         history=history,
         eval_set=eval_set_key,
-        model_name=args.model_name,
+        model_name=tracking_model_name,
         run_name=args.run_name,
     )
     delta = None
@@ -248,10 +454,35 @@ def main() -> None:
             "hit_at_3_delta": hit3_value - float(previous.get("hit_at_3", 0.0)),
             "hit_at_10_delta": hit10_value - float(previous.get("hit_at_10", 0.0)),
             "mrr_at_3_delta": mrr3_value - float(previous.get("mrr_at_3", 0.0)),
+            "answer_score_delta": (
+                answer_score_value - float(previous["answer_score"])
+                if previous.get("answer_score") is not None
+                else None
+            ),
+            "answer_score_top1_mean_delta": (
+                answer_score_top1_mean - float(previous["answer_score_top1_mean"])
+                if previous.get("answer_score_top1_mean") is not None
+                else None
+            ),
+            "answer_score_top3_mean_delta": (
+                answer_score_top3_mean - float(previous["answer_score_top3_mean"])
+                if previous.get("answer_score_top3_mean") is not None
+                else None
+            ),
+            "answer_exact_match_top1_rate_delta": (
+                answer_exact_match_top1_rate - float(previous["answer_exact_match_top1_rate"])
+                if previous.get("answer_exact_match_top1_rate") is not None
+                else None
+            ),
+            "answer_numeric_match_top1_rate_delta": (
+                answer_numeric_match_top1_rate - float(previous["answer_numeric_match_top1_rate"])
+                if previous.get("answer_numeric_match_top1_rate") is not None
+                else None
+            ),
             "previous_run_at": previous.get("run_at"),
         }
 
-    print("=== EVAL AUDIT (offline embedder) ===")
+    print(f"=== EVAL AUDIT ({tracking_model_name}) ===")
     print(f"chunks_indexed: {len(chunks)}")
     print(f"vectors_upserted: {index_report.vectors_upserted}")
     print(f"queries: {total}")
@@ -259,13 +490,25 @@ def main() -> None:
     print(f"hit@10: {hit10_value:.4f}")
     print(f"MRR@3: {mrr3_value:.4f}")
     print(f"score: {score_value:.4f} (0.50*hit@3 + 0.40*mrr@3 + 0.10*hit@10)")
+    print(f"answer_score_top1_mean: {answer_score_top1_mean:.4f}")
+    print(f"answer_score_top3_mean: {answer_score_top3_mean:.4f}")
+    print(f"answer_exact_match_top1_rate: {answer_exact_match_top1_rate:.4f}")
+    print(f"answer_numeric_match_top1_rate: {answer_numeric_match_top1_rate:.4f}")
+    print(
+        f"answer_score: {answer_score_value:.4f} "
+        f"({ANSWER_SCORE_TOP1_WEIGHT:.2f}*top1 + {ANSWER_SCORE_TOP3_WEIGHT:.2f}*top3)"
+    )
     if delta is not None:
+        answer_score_delta_str = "n/a"
+        if delta["answer_score_delta"] is not None:
+            answer_score_delta_str = f"{delta['answer_score_delta']:+.4f}"
         print(
             "delta_vs_previous: "
             f"score={delta['score_delta']:+.4f} "
             f"hit@3={delta['hit_at_3_delta']:+.4f} "
             f"hit@10={delta['hit_at_10_delta']:+.4f} "
-            f"mrr@3={delta['mrr_at_3_delta']:+.4f}"
+            f"mrr@3={delta['mrr_at_3_delta']:+.4f} "
+            f"answer_score={answer_score_delta_str}"
         )
     else:
         print("delta_vs_previous: n/a (no matching baseline yet)")
@@ -323,6 +566,15 @@ def main() -> None:
                     "mrr_at_3": mrr3_value,
                     "score": score_value,
                     "score_formula": "0.50*hit_at_3 + 0.40*mrr_at_3 + 0.10*hit_at_10",
+                    "answer_score_top1_mean": answer_score_top1_mean,
+                    "answer_score_top3_mean": answer_score_top3_mean,
+                    "answer_exact_match_top1_rate": answer_exact_match_top1_rate,
+                    "answer_numeric_match_top1_rate": answer_numeric_match_top1_rate,
+                    "answer_score": answer_score_value,
+                    "answer_score_formula": (
+                        f"{ANSWER_SCORE_TOP1_WEIGHT:.2f}*answer_score_top1_mean + "
+                        f"{ANSWER_SCORE_TOP3_WEIGHT:.2f}*answer_score_top3_mean"
+                    ),
                     "delta_vs_previous": delta,
                     "failed_at_3": failed,
                     "retrieval_bottlenecks": retrieval_bottlenecks,
@@ -330,7 +582,8 @@ def main() -> None:
                 },
                 "tracking": {
                     "eval_set": eval_set_key,
-                    "model_name": args.model_name,
+                    "model_name": tracking_model_name,
+                    "embedding_model": args.embedding_model,
                     "run_name": args.run_name,
                     "history_path": str(history_path),
                 },
@@ -349,13 +602,19 @@ def main() -> None:
     history_row = {
         "run_at": datetime.now(timezone.utc).isoformat(),
         "eval_set": eval_set_key,
-        "model_name": args.model_name,
+        "model_name": tracking_model_name,
+        "embedding_model": args.embedding_model,
         "run_name": args.run_name,
         "queries": total,
         "score": score_value,
         "hit_at_3": hit3_value,
         "hit_at_10": hit10_value,
         "mrr_at_3": mrr3_value,
+        "answer_score_top1_mean": answer_score_top1_mean,
+        "answer_score_top3_mean": answer_score_top3_mean,
+        "answer_exact_match_top1_rate": answer_exact_match_top1_rate,
+        "answer_numeric_match_top1_rate": answer_numeric_match_top1_rate,
+        "answer_score": answer_score_value,
         "output_report": str(out_path),
     }
     with history_path.open("a", encoding="utf-8") as fh:

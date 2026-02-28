@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .index import build_embeddings, build_vector_index, index_to_qdrant
+from .index import build_vector_index
 from .prepare import direct_chunks_from_pdfs, load_chunks_jsonl, prepare_documents
 from .search import search_top_k
 from .types import PrepConfig, QualityEvalReport, SearchConfig, VectorConfig
@@ -42,16 +42,3 @@ def run_quality_eval(
 
     total = len(cases)
     return QualityEvalReport(total_queries=total, hit_at_k=hits / total, mrr=rr_sum / total)
-
-
-def prepare_documents_stage(input_dir: str, output_dir: str, prep_config: PrepConfig):
-    return prepare_documents(input_dir=input_dir, output_dir=output_dir, config=prep_config)
-
-
-def build_embeddings_stage(output_dir: str, vector_config: VectorConfig):
-    chunks = load_chunks_jsonl(f"{output_dir}/chunks.jsonl")
-    return build_embeddings(chunks=chunks, cfg=vector_config)
-
-
-def index_to_qdrant_stage(ids: list[str], vectors: list[list[float]], payloads: list[dict], vector_config: VectorConfig):
-    return index_to_qdrant(ids=ids, vectors=vectors, payloads=payloads, cfg=vector_config)

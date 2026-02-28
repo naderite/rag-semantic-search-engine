@@ -1,6 +1,8 @@
 export type SearchResult = {
   text: string;
   score: number;
+  retrieval_score?: number;
+  answer_score?: number;
   rank: number;
 };
 

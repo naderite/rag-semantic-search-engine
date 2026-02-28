@@ -1,11 +1,15 @@
 from .index import build_embeddings, build_vector_index, index_to_qdrant
+from .answer_structure import (
+    detect_query_intent,
+    extract_structured_answer,
+    extract_structured_answer_with_score,
+    normalize_answer_text,
+    normalize_unit_string,
+)
 from .pipeline import (
     answer_question,
-    build_embeddings_stage,
     index_pdfs_directly,
-    index_to_qdrant_stage,
     prepare_and_index,
-    prepare_documents_stage,
     run_quality_eval,
 )
 from .prepare import (
@@ -61,8 +65,10 @@ __all__ = [
     "index_pdfs_directly",
     "answer_question",
     "run_quality_eval",
-    "prepare_documents_stage",
-    "build_embeddings_stage",
-    "index_to_qdrant_stage",
     "QualityEvalReport",
+    "normalize_unit_string",
+    "normalize_answer_text",
+    "detect_query_intent",
+    "extract_structured_answer",
+    "extract_structured_answer_with_score",
 ]
