@@ -1,0 +1,86 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f7f4ef;
+  --surface: rgba(255, 255, 255, 0.82);
+  --line: rgba(192, 30, 64, 0.20);
+  --text: #2f2928;
+  --muted: #6e625e;
+  --teal: #c01e40;
+  --violet: #f8b43f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Cairo, Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.atlas-bg {
+  background:
+    radial-gradient(circle at 10% 8%, rgba(248, 180, 63, 0.24), transparent 33%),
+    radial-gradient(circle at 85% 15%, rgba(192, 30, 64, 0.20), transparent 38%),
+    linear-gradient(180deg, #fcfaf6 0%, #f2ece5 55%, #efe7df 100%);
+}
+
+.atlas-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  background-image: radial-gradient(rgba(89, 61, 49, 0.35) 0.5px, transparent 0.5px);
+  background-size: 3px 3px;
+  mix-blend-mode: multiply;
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.food-panel {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 251, 246, 0.86)),
+    repeating-linear-gradient(45deg, rgba(168, 126, 93, 0.04) 0px, rgba(168, 126, 93, 0.04) 1px, transparent 1px, transparent 8px);
+}
+
+.result-card-food {
+  position: relative;
+  overflow: hidden;
+}
+
+.result-card-food::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  background: linear-gradient(90deg, #c01e40, #f8b43f);
+  opacity: 0.8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
