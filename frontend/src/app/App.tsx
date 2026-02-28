@@ -11,10 +11,13 @@ type SearchError = {
   details?: string;
 };
 
+const RETRIEVAL_SCORE_WEIGHT = 0.35;
+const ANSWER_SCORE_WEIGHT = 0.65;
+
 const EMPTY_RESULTS: SearchResult[] = [
-  { rank: 1, score: 0, text: "" },
-  { rank: 2, score: 0, text: "" },
-  { rank: 3, score: 0, text: "" },
+  { rank: 1, score: 0, retrieval_score: 0, answer_score: 0, text: "" },
+  { rank: 2, score: 0, retrieval_score: 0, answer_score: 0, text: "" },
+  { rank: 3, score: 0, retrieval_score: 0, answer_score: 0, text: "" },
 ];
 
 export default function App() {
@@ -40,7 +43,21 @@ export default function App() {
 
     try {
       const data = await searchQuestion(trimmed);
-      setResults(data.results.slice(0, 3).map((item, idx) => ({ ...item, rank: idx + 1 })));
+      setResults(
+        data.results.slice(0, 3).map((item, idx) => ({
+          ...item,
+          retrieval_score: Number.isFinite(item.retrieval_score) ? item.retrieval_score : undefined,
+          answer_score: Number.isFinite(item.answer_score) ? item.answer_score : undefined,
+          score:
+            Number.isFinite(item.retrieval_score) && Number.isFinite(item.answer_score)
+              ? (RETRIEVAL_SCORE_WEIGHT * (item.retrieval_score as number)) +
+                (ANSWER_SCORE_WEIGHT * (item.answer_score as number))
+              : Number.isFinite(item.score)
+                ? item.score
+                : 0,
+          rank: idx + 1,
+        })),
+      );
       setLatencyMs(data.meta.time_ms);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
@@ -59,13 +76,21 @@ export default function App() {
       <div className="atlas-bg pointer-events-none fixed inset-0 -z-10" aria-hidden="true" />
       <Header lastLatencyMs={latencyMs} />
 
-      <div className="mt-6 grid gap-5 lg:grid-cols-[1.2fr_1fr]">
+      <div className="mt-6 grid gap-4 sm:gap-5 lg:grid-cols-[1.2fr_1fr]">
         <Composer value={question} onChange={setQuestion} onSubmit={runSearch} loading={loading} />
 
-        <section className="food-panel rounded-2xl border border-line bg-surface/90 p-5 backdrop-blur" aria-live="polite">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-base text-muted">Top Matches</h2>
-            {latencyMs !== undefined ? <p className="font-mono text-sm text-muted">{formatMs(latencyMs)}</p> : null}
+        <section className="food-panel modern-panel rounded-3xl border border-line/80 bg-surface/90 p-4 sm:p-5 backdrop-blur" aria-live="polite">
+          <div className="mb-4 flex flex-col items-start justify-between gap-2 border-b border-line/50 pb-3 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-xl font-title tracking-tight text-text sm:text-2xl">Top Matches</h2>
+              <p className="text-sm uppercase tracking-wide text-muted">Ranked answer snippets</p>
+            </div>
+            {latencyMs !== undefined ? (
+              <div className="flex items-center gap-2 rounded-full border border-line/60 bg-[#fff7ef] px-3.5 py-1.5">
+                <span className="text-xs text-muted">Response time</span>
+                <p className="font-mono text-sm text-muted">{formatMs(latencyMs)}</p>
+              </div>
+            ) : null}
           </div>
 
           {!loading && !error && results.length === 0 ? (
@@ -120,7 +145,13 @@ export default function App() {
           {!loading && !error && results.length > 0 ? (
             <div className="space-y-3">
               {visibleResults.map((item, idx) => (
-                <ResultCard key={`${item.rank}-${idx}`} rank={item.rank} score={item.score} text={item.text} delayMs={idx * 70} />
+                <ResultCard
+                  key={`${item.rank}-${idx}`}
+                  rank={item.rank}
+                  score={item.score}
+                  text={item.text}
+                  delayMs={idx * 70}
+                />
               ))}
             </div>
           ) : null}

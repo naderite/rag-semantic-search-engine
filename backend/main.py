@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import logging
+import math
 import time
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 
+from rag.answer_structure import extract_structured_answer_with_score
 from rag import SearchConfig, search_top_k
 
 logger = logging.getLogger("semantic_atlas_api")
+RETRIEVAL_SCORE_WEIGHT = 0.35
+ANSWER_SCORE_WEIGHT = 0.65
 
 app = FastAPI(title="Semantic Atlas API", version="1.0.0")
 
@@ -42,6 +46,8 @@ class SearchRequest(BaseModel):
 class SearchResultItem(BaseModel):
     text: str
     score: float
+    retrieval_score: float
+    answer_score: float
     rank: int
 
 
@@ -67,15 +73,17 @@ def search(payload: SearchRequest) -> SearchResponse:
     logger.info("search.start question_len=%s", len(payload.question))
 
     try:
+        cfg = SearchConfig(
+            qdrant_url="http://localhost:6333",
+            collection_name="rag_chunks",
+            context_window=0,
+            chunks_jsonl_path="artifacts/chunks.jsonl",
+            answer_span_max_chars=None,
+        )
         rag_response = search_top_k(
             question=payload.question,
             k=3,
-            cfg=SearchConfig(
-                qdrant_url="http://localhost:6333",
-                collection_name="rag_chunks",
-                context_window=0,
-                chunks_jsonl_path="artifacts/chunks.jsonl",
-            ),
+            cfg=cfg,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -90,10 +98,25 @@ def search(payload: SearchRequest) -> SearchResponse:
 
     results: list[SearchResultItem] = []
     for idx, item in enumerate(rag_response.results[:3], start=1):
+        text = item.text
+        answer_score = 0.0
+        if cfg.answer_span_fallback_enabled:
+            text, answer_score = extract_structured_answer_with_score(
+                question=payload.question,
+                text=item.text,
+                max_chars=None,
+            )
+        raw_retrieval = float(item.final_score if item.final_score else item.score)
+        retrieval_score = 1.0 / (1.0 + math.exp(-raw_retrieval))
+        combined_score = (RETRIEVAL_SCORE_WEIGHT * retrieval_score) + (
+            ANSWER_SCORE_WEIGHT * float(answer_score)
+        )
         results.append(
             SearchResultItem(
-                text=item.text,
-                score=float(item.score),
+                text=text,
+                score=combined_score,
+                retrieval_score=retrieval_score,
+                answer_score=float(answer_score),
                 rank=idx,
             )
         )
