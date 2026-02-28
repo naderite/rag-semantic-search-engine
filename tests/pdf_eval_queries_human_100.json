@@ -1,0 +1,1427 @@
+[
+  {
+    "id": "q001",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme GOX 110®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme GOX 110®: 5-40 ppm.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q002",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme GOX 110®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme GOX 110® activity: 10000U/g.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q003",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme TG MAX63®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme TG MAX63®: 5-25 ppm.",
+        "source_file": "BVZyme  TG MAX63 TDS.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q004",
+    "category": "doc_activity_or_claim",
+    "query": "If we use BVZyme TG MAX63®, what key function claim does the document highlight?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme TG MAX63® claim: Improve the volume,texture,dough elasticity,Increase strength,improve stability and tolerance.",
+        "source_file": "BVZyme  TG MAX63 TDS.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q005",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme TG MAX64®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme TG MAX64®: 5-20 ppm.",
+        "source_file": "BVZyme  TG MAX64 TDS.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q006",
+    "category": "doc_activity_or_claim",
+    "query": "If we use BVZyme TG MAX64®, what key function claim does the document highlight?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme TG MAX64® claim: Improve the volume,texture,dough elasticity,Increase strength,improve stability and tolerance and oven spring.",
+        "source_file": "BVZyme  TG MAX64 TDS.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q007",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme TG881®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme TG881®: 10-40 ppm.",
+        "source_file": "BVZyme  TG881 TDS(1).pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q008",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme TG881®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme TG881® activity: 200U/g.",
+        "source_file": "BVZyme  TG881 TDS(1).pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q009",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme TG883®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme TG883®: 5-30 ppm.",
+        "source_file": "BVZyme  TG883 TDS.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q010",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme TG883®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme TG883® activity: 400U/g.",
+        "source_file": "BVZyme  TG883 TDS.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q011",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme GO MAX 63®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme GO MAX 63®: 5-50 ppm.",
+        "source_file": "BVZyme GO MAX 63 TDS.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q012",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme GO MAX 63®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme GO MAX 63® activity: 10000U/g.",
+        "source_file": "BVZyme GO MAX 63 TDS.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q013",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme GO MAX 65®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme GO MAX 65®: 5-40 ppm.",
+        "source_file": "BVZyme GO MAX 65.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q014",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme GO MAX 65®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme GO MAX 65® activity: 11000U/g.",
+        "source_file": "BVZyme GO MAX 65.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q015",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme A FRESH101®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A FRESH101®: 15-100 ppm.",
+        "source_file": "BVZyme TDS A FRESH101.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q016",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme A FRESH101®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A FRESH101® activity: 10000 NMAU/g.",
+        "source_file": "BVZyme TDS A FRESH101.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q017",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme A FRESH202 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A FRESH202 ®: 10-90 ppm.",
+        "source_file": "BVZyme TDS A FRESH202.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q018",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme A FRESH202 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A FRESH202 ® activity: 10950 NMAU/g.",
+        "source_file": "BVZyme TDS A FRESH202.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q019",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme A FRESH303®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A FRESH303®: 15-100 ppm.",
+        "source_file": "BVZyme TDS A FRESH303.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q020",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme A FRESH303®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A FRESH303® activity: 11000 NMAU/g.",
+        "source_file": "BVZyme TDS A FRESH303.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q021",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme A SOFT205®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A SOFT205®: 15-100 ppm.",
+        "source_file": "BVZyme TDS A SOFT205.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q022",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme A SOFT205®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A SOFT205® activity: 11600 NMAU/g.",
+        "source_file": "BVZyme TDS A SOFT205.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q023",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme A SOFT305®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A SOFT305®: Dosage range 15-50 ppm,suggest dosage 30ppm.",
+        "source_file": "BVZyme TDS A SOFT305(1).pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q024",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme A SOFT305®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A SOFT305® activity: 10500 NMAU/g.",
+        "source_file": "BVZyme TDS A SOFT305(1).pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q025",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme A SOFT405®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A SOFT405®: 15-90 ppm.",
+        "source_file": "BVZyme TDS A SOFT405.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q026",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme A SOFT405®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme A SOFT405® activity: 11720 NMAU/g.",
+        "source_file": "BVZyme TDS A SOFT405.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q027",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme AF110 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AF110 ®: 2-12 ppm.",
+        "source_file": "BVZyme TDS AF110.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q028",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme AF110 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AF110 ® activity: 150000 SKB/g.",
+        "source_file": "BVZyme TDS AF110.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q029",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme AF220 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AF220 ®: 2-10 ppm.",
+        "source_file": "BVZyme TDS AF220.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q030",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme AF220 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AF220 ® activity: 11000 FAU/g.",
+        "source_file": "BVZyme TDS AF220.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q031",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme AF330 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AF330 ®: 2-10 ppm.",
+        "source_file": "BVZyme TDS AF330.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q032",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme AF330 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AF330 ® activity: 11900 FAU/g.",
+        "source_file": "BVZyme TDS AF330.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q033",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme AMG1400®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AMG1400®: 10-100 ppm.",
+        "source_file": "BVZyme TDS AMG1400.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q034",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme AMG1400®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AMG1400® activity: 80000 AGI/g.",
+        "source_file": "BVZyme TDS AMG1400.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q035",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme AMG880 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AMG880 ®: 10-100 ppm.",
+        "source_file": "BVZyme TDS AMG880.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q036",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme AMG880 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AMG880 ® activity: 70000 AGI/g.",
+        "source_file": "BVZyme TDS AMG880.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q037",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme L MAX X®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L MAX X®: 2-20 ppm.",
+        "source_file": "BVZyme TDS L MAX X.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q038",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme L MAX X®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L MAX X® activity: 3300U/g.",
+        "source_file": "BVZyme TDS L MAX X.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q039",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme L MAX63®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L MAX63®: 5-30 ppm.",
+        "source_file": "BVZyme TDS L MAX63.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q040",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme L MAX63®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L MAX63® activity: 1255U/g.",
+        "source_file": "BVZyme TDS L MAX63.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q041",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme L MAX64®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L MAX64®: 5-60 ppm.",
+        "source_file": "BVZyme TDS L MAX64.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q042",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme L MAX64®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L MAX64® activity: 47000U/g.",
+        "source_file": "BVZyme TDS L MAX64.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q043",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme L MAX65®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L MAX65®: 5-50 ppm.",
+        "source_file": "BVZyme TDS L MAX65.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q044",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme L MAX65®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L MAX65® activity: 50000U/g.",
+        "source_file": "BVZyme TDS L MAX65.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q045",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme L55®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L55®: 5-50 ppm.",
+        "source_file": "BVZyme TDS L55pdf.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q046",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme L55®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L55® activity: 1120U/g.",
+        "source_file": "BVZyme TDS L55pdf.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q047",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme AF SX ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AF SX ®: 5-25 ppm.",
+        "source_file": "BVZymeTDSAF SX.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q048",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme AF SX ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme AF SX ® activity: 85000 SKB/g.",
+        "source_file": "BVZymeTDSAF SX.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q049",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme HCB708 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCB708 ®: 5-30 ppm.",
+        "source_file": "TDS BVZyme HCB708.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q050",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme HCB708 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCB708 ® activity: 568 XylH/g.",
+        "source_file": "TDS BVZyme HCB708.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q051",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme HCB709 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCB709 ®: 5-20 ppm.",
+        "source_file": "TDS BVZyme HCB709.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q052",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme HCB709 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCB709 ® activity: 577 XylH/g.",
+        "source_file": "TDS BVZyme HCB709.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q053",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme HCB710 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCB710 ®: 5-20 ppm.",
+        "source_file": "TDS BVZyme HCB710.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q054",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme HCB710 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCB710 ® activity: 583 XylH/g.",
+        "source_file": "TDS BVZyme HCB710.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q055",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme HCF MAX X ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF MAX X ®: Standardization of Wheat Flour 0.5-2 ppm; Bread Improvement 1-15 ppm; Suggested Optimum Dosage 0.5-2 ppm.",
+        "source_file": "TDS BVzyme HCF MAX X.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q056",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme HCF MAX X ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF MAX X ® activity: 23500 XylH/g.",
+        "source_file": "TDS BVzyme HCF MAX X.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q057",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme HCF MAX63 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF MAX63 ®: Standardization of Wheat Flour 5-20 ppm; Bread Improvement 10-70 ppm; Suggested Optimum Dosage 15-35 ppm.",
+        "source_file": "TDS BVzyme HCF MAX63.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q058",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme HCF MAX63 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF MAX63 ® activity: 2205 XylH/g.",
+        "source_file": "TDS BVzyme HCF MAX63.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q059",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme HCF MAX64 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF MAX64 ®: Standardization of Wheat Flour 1-5 ppm; Bread Improvement 2-35 ppm; Suggested Optimum Dosage 2-10 ppm.",
+        "source_file": "TDS BVzyme HCF MAX64.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q060",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme HCF MAX64 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF MAX64 ® activity: 7850 XylH/g.",
+        "source_file": "TDS BVzyme HCF MAX64.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q061",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme HCF400 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF400 ®: Standardization of Wheat Flour 5-20 ppm; Bread Improvement 10-70 ppm; Suggested Optimum Dosage 15-35 ppm.",
+        "source_file": "TDS BVzyme HCF400.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q062",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme HCF400 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF400 ® activity: 2040 XylH/g.",
+        "source_file": "TDS BVzyme HCF400.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q063",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme HCF500 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF500 ®: Standardization of Wheat Flour 5-20 ppm; Bread Improvement 10-70 ppm; Suggested Optimum Dosage 15-35 ppm.",
+        "source_file": "TDS BVzyme HCF500.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q064",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme HCF500 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF500 ® activity: 2110 XylH/g.",
+        "source_file": "TDS BVzyme HCF500.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q065",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme HCF600 ®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF600 ®: Standardization of Wheat Flour 1-5 ppm; Bread Improvement 2-35 ppm; Suggested Optimum Dosage 2-10 ppm.",
+        "source_file": "TDS BVzyme HCF600.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q066",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme HCF600 ®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF600 ® activity: 7750 XylH/g.",
+        "source_file": "TDS BVzyme HCF600.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q067",
+    "category": "doc_dosage",
+    "query": "I'm planning a bakery trial with BVZyme L65®; what dosage range does its sheet recommend?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L65®: 5-50 ppm.",
+        "source_file": "TDS L65pdf.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q068",
+    "category": "doc_activity_or_claim",
+    "query": "Before we lock the formula for BVZyme L65®, can you confirm the activity value written in the TDS?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme L65® activity: 1080U/g.",
+        "source_file": "TDS L65pdf.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q069",
+    "category": "safety",
+    "query": "When I scan the food safety tables, what cadmium and lead limits keep repeating?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Cadmium: < 0.5 mg/kg; Lead: < 5 mg/kg.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Cadmium: < 0.5 mg/kg; Lead: < 5 mg/kg.",
+        "source_file": "BVZyme TDS A SOFT205.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Cadmium: < 0.5 mg/kg; Lead: < 5 mg/kg.",
+        "source_file": "BVZyme TDS L MAX64.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q070",
+    "category": "safety",
+    "query": "Do the same sheets also give mercury and arsenic limits, and what are they?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Mercury: < 0.5 mg/kg; Arsenic: < 3 mg/kg.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Mercury: < 0.5 mg/kg; Arsenic: < 3 mg/kg.",
+        "source_file": "BVZyme TDS A SOFT205.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Mercury: < 0.5 mg/kg; Arsenic: < 3 mg/kg.",
+        "source_file": "BVZyme TDS L MAX64.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q071",
+    "category": "allergen",
+    "query": "I need allergen confirmation for QA; which allergen is explicitly declared in these enzyme TDS files?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Declared allergen: gluten.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Declared allergen: gluten.",
+        "source_file": "BVZyme TDS A SOFT205.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Declared allergen: gluten.",
+        "source_file": "BVZyme TDS L MAX64.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q072",
+    "category": "storage",
+    "query": "For warehouse handling, what storage condition is repeatedly requested in the enzyme sheets?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Keep/store in a cool and dry place, below 20C.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Store in a cool, dry place (below 20C).",
+        "source_file": "BVZyme TDS A SOFT205.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Keep in a cool and dry place (<20C).",
+        "source_file": "BVZyme TDS L MAX64.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q073",
+    "category": "shelf_life",
+    "query": "What shelf life appears most often in these BVZyme enzyme data sheets?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Date of minimum durability: 24 months.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Date of minimum durability: 24 months.",
+        "source_file": "BVZyme TDS A SOFT205.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Date of minimum durability: 24 months.",
+        "source_file": "BVZyme TDS L MAX64.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q074",
+    "category": "packaging",
+    "query": "If we order these enzymes, what packaging format is usually listed?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Packaging/package: carton box of 25 kg.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Packaging: carton box of 25 kg.",
+        "source_file": "BVZyme TDS A SOFT205.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Package: carton box of 25 kg.",
+        "source_file": "BVZyme TDS L MAX64.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q075",
+    "category": "compliance",
+    "query": "How is GMO labeling status phrased across the enzyme TDS documents?",
+    "expected_top3": [
+      {
+        "candidate_answer": "No specific labeling required under EU Regulations 1829/2003 and 1830/2003.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "No specific labeling required under EU Regulations 1829/2003 and 1830/2003.",
+        "source_file": "BVZyme TDS A SOFT205.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "No specific labeling required under EU Regulations 1829/2003 and 1830/2003.",
+        "source_file": "BVZyme TDS L MAX64.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q076",
+    "category": "compliance",
+    "query": "Can you confirm whether irradiation is used according to these sheets?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Ionization status: without irradiation treatment.",
+        "source_file": "BVZyme  GOX 110 TDS(1).pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Ionization status: without irradiation treatment.",
+        "source_file": "BVZyme TDS A SOFT205.pdf",
+        "page": 2
+      },
+      {
+        "candidate_answer": "Ionization status: without irradiation treatment.",
+        "source_file": "BVZyme TDS L MAX64.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q077",
+    "category": "family_compare",
+    "query": "I am comparing HCF MAX X, HCF MAX63, and HCF MAX64; what dosage guidance does each one give?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF MAX X ®: Standardization of Wheat Flour 0.5-2 ppm; Bread Improvement 1-15 ppm; Suggested Optimum Dosage 0.5-2 ppm.",
+        "source_file": "TDS BVzyme HCF MAX X.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme HCF MAX63 ®: Standardization of Wheat Flour 5-20 ppm; Bread Improvement 10-70 ppm; Suggested Optimum Dosage 15-35 ppm.",
+        "source_file": "TDS BVzyme HCF MAX63.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme HCF MAX64 ®: Standardization of Wheat Flour 1-5 ppm; Bread Improvement 2-35 ppm; Suggested Optimum Dosage 2-10 ppm.",
+        "source_file": "TDS BVzyme HCF MAX64.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q078",
+    "category": "family_compare",
+    "query": "Could you compare HCF400, HCF500, and HCF600 for standardization and bread improvement dosage?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCF400 ®: Standardization of Wheat Flour 5-20 ppm; Bread Improvement 10-70 ppm; Suggested Optimum Dosage 15-35 ppm.",
+        "source_file": "TDS BVzyme HCF400.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme HCF500 ®: Standardization of Wheat Flour 5-20 ppm; Bread Improvement 10-70 ppm; Suggested Optimum Dosage 15-35 ppm.",
+        "source_file": "TDS BVzyme HCF500.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme HCF600 ®: Standardization of Wheat Flour 1-5 ppm; Bread Improvement 2-35 ppm; Suggested Optimum Dosage 2-10 ppm.",
+        "source_file": "TDS BVzyme HCF600.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q079",
+    "category": "family_compare",
+    "query": "We are choosing between HCB708, HCB709, and HCB710; what dosage ranges are listed for each?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme HCB708 ®: 5-30 ppm.",
+        "source_file": "TDS BVZyme HCB708.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme HCB709 ®: 5-20 ppm.",
+        "source_file": "TDS BVZyme HCB709.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme HCB710 ®: 5-20 ppm.",
+        "source_file": "TDS BVZyme HCB710.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q080",
+    "category": "family_compare",
+    "query": "For transglutaminase options, how do TG MAX63, TG MAX64, and TG883 compare on dosage?",
+    "expected_top3": [
+      {
+        "candidate_answer": "BVZyme TG MAX63®: 5-25 ppm.",
+        "source_file": "BVZyme  TG MAX63 TDS.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme TG MAX64®: 5-20 ppm.",
+        "source_file": "BVZyme  TG MAX64 TDS.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "BVZyme TG883®: 5-30 ppm.",
+        "source_file": "BVZyme  TG883 TDS.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q081",
+    "category": "ascorbic_dosage",
+    "query": "For standard direct breadmaking with E300, what dosage range should I start with?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Panification directe standard: 20-60 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q082",
+    "category": "ascorbic_dosage",
+    "query": "If my process uses slow proofing, what E300 dosage is recommended?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Panification avec pousse lente: 60-80 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q083",
+    "category": "ascorbic_dosage",
+    "query": "For positive cold retardation around 2C, what range does the table give?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Blocage froid positif (2C): 80-100 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q084",
+    "category": "ascorbic_dosage",
+    "query": "What dosage is listed for frozen dough workflows?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Surgelation: 150-200 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q085",
+    "category": "ascorbic_dosage",
+    "query": "What exact dose is shown for pain de mie CBP?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Pain de mie (CBP): 75 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q086",
+    "category": "ascorbic_dosage",
+    "query": "For enriched viennoiserie, what range does the guide mention?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Viennoiserie enrichie: 50-75 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q087",
+    "category": "ascorbic_dosage",
+    "query": "What range is recommended for biscuits and crackers?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Biscuits/Crackers: 30-50 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q088",
+    "category": "ascorbic_regulatory",
+    "query": "When checking compliance, what maximum authorized dosage is stated?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Dosage maximum autorise: 300 ppm (UE/France/Belgique).",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      },
+      {
+        "candidate_answer": "France/Belgique: 300 ppm.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q089",
+    "category": "ascorbic_conversion",
+    "query": "In the quick conversion table, what is 50 ppm for 100 kg flour?",
+    "expected_top3": [
+      {
+        "candidate_answer": "100 kg at 50 ppm = 5 g.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q090",
+    "category": "ascorbic_conversion",
+    "query": "For 50 kg flour, how many grams correspond to 150 ppm?",
+    "expected_top3": [
+      {
+        "candidate_answer": "50 kg at 150 ppm = 7.5 g.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q091",
+    "category": "ascorbic_conversion",
+    "query": "For 1,000 kg flour, what value corresponds to 75 ppm?",
+    "expected_top3": [
+      {
+        "candidate_answer": "1,000 kg at 75 ppm = 75 g.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q092",
+    "category": "ascorbic_specs",
+    "query": "Can you confirm the listed purity range for this ascorbic acid document?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Purete standard: 99.0-99.5%.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q093",
+    "category": "ascorbic_specs",
+    "query": "What pH range is given for a 1 percent solution?",
+    "expected_top3": [
+      {
+        "candidate_answer": "pH en solution 1%: 2.0-2.5.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q094",
+    "category": "ascorbic_specs",
+    "query": "Which additive code and chemical formula are mentioned?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Code additif: E300; Formule chimique: C6H8O6.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q095",
+    "category": "ascorbic_storage",
+    "query": "What storage temperature and humidity are advised?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Temperature: 15-25C; humidite < 60%.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q096",
+    "category": "ascorbic_storage",
+    "query": "What shelf-life window is shown for conservation?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Conservation: 18-24 mois selon conditions de stockage.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q097",
+    "category": "ascorbic_process",
+    "query": "At which step should E300 be added in production?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Ajouter au melange d ingredients secs avant hydratation.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 2
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q098",
+    "category": "ascorbic_process",
+    "query": "How long after incorporation does the document say the action starts?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Action/temps d action: 5-15 minutes apres incorporation.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q099",
+    "category": "ascorbic_limits",
+    "query": "What does the guide say about vitamin C remaining after baking?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Environ 90% detruit pendant la cuisson; pas d apport vitamine C final.",
+        "source_file": "acide ascorbique.pdf",
+        "page": 1
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  },
+  {
+    "id": "q100",
+    "category": "ascorbic_recommendation",
+    "query": "For pilot runs, what starting dosage range is suggested in recommendations?",
+    "expected_top3": [
+      {
+        "candidate_answer": "Commencer par 50-75 ppm (dosage standard sur).",
+        "source_file": "acide ascorbique.pdf",
+        "page": 4
+      }
+    ],
+    "source": "human_rephrase_v2_100"
+  }
+]
