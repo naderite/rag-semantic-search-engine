@@ -28,7 +28,7 @@ def main() -> None:
     collection_name = os.getenv("QDRANT_COLLECTION", "rag_chunks")
     model_name = os.getenv(
         "EMBEDDING_MODEL",
-        "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        "models/paraphrase-multilingual-MiniLM-L12-v2",
     )
     _wait_for_qdrant(qdrant_url=qdrant_url)
 

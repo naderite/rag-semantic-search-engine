@@ -3,11 +3,12 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
+from dataclasses import replace
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from .embeddings import SentenceTransformerEmbedder
+from .embeddings import CrossEncoderReranker, SentenceTransformerEmbedder
 from .types import SearchConfig, SearchResponse, SearchResult
 from .vector_store import QdrantVectorStore
 
@@ -17,18 +18,89 @@ def search_top_k(question: str, k: int, cfg: SearchConfig) -> SearchResponse:
     vector_store = cfg.vector_store or QdrantVectorStore(url=cfg.qdrant_url, collection_name=cfg.collection_name)
 
     query_vec = embedder.embed([question])[0]
-    fetch_k = max(k, k * max(1, cfg.fetch_multiplier), cfg.candidate_pool)
+    query_norm = _normalize_text(question)
+    query_tokens = _tokenize(question)
+    profile = _query_profile(query_norm, query_tokens)
+    effective_cfg = _apply_route_overrides(cfg=cfg, profile=profile)
+    fetch_k = _adaptive_fetch_k(k=k, cfg=effective_cfg, profile=profile)
     dense_hits = vector_store.search(vector=query_vec, limit=fetch_k)
-    ranked = _rank_hits(question=question, hits=dense_hits, cfg=cfg)
+    ranked = _rank_hits(question=question, hits=dense_hits, cfg=effective_cfg)
     results = ranked[:k]
 
-    if cfg.context_window > 0 and cfg.chunks_jsonl_path:
-        results = _expand_with_context(results=results, cfg=cfg)
+    if effective_cfg.context_window > 0 and effective_cfg.chunks_jsonl_path:
+        results = _expand_with_context(results=results, cfg=effective_cfg)
 
     for idx, item in enumerate(results, start=1):
         item.rank = idx
 
     return SearchResponse(question=question, results=results)
+
+
+def _apply_route_overrides(cfg: SearchConfig, profile: dict[str, Any]) -> SearchConfig:
+    if not cfg.route_overrides_enabled:
+        return cfg
+
+    route = _route_for_profile(profile)
+    if route == "code_specific":
+        # Favor dense/code matching for explicit product-code requests.
+        return replace(
+            cfg,
+            candidate_pool=100,
+            fetch_multiplier=4,
+            diversity_enabled=False,
+            dense_weight=0.65,
+            lexical_weight=0.25,
+            field_weight=0.10,
+            code_mismatch_penalty=0.05,
+            section_mismatch_penalty=0.04,
+        )
+    if route == "compliance_storage_safety":
+        # Favor lexical/field evidence and tighter section constraints.
+        return replace(
+            cfg,
+            candidate_pool=50,
+            fetch_multiplier=4,
+            diversity_enabled=False,
+            dense_weight=0.58,
+            lexical_weight=0.32,
+            field_weight=0.10,
+            code_mismatch_penalty=0.05,
+            section_mismatch_penalty=0.04,
+        )
+    if route == "activity":
+        # Activity queries benefit from more field cues and larger pools.
+        return replace(
+            cfg,
+            candidate_pool=100,
+            fetch_multiplier=4,
+            diversity_enabled=False,
+            dense_weight=0.65,
+            lexical_weight=0.25,
+            field_weight=0.10,
+            code_mismatch_penalty=0.05,
+            section_mismatch_penalty=0.04,
+        )
+    return replace(
+        cfg,
+        candidate_pool=50,
+        fetch_multiplier=4,
+        diversity_enabled=False,
+        dense_weight=0.65,
+        lexical_weight=0.25,
+        field_weight=0.10,
+        code_mismatch_penalty=0.05,
+        section_mismatch_penalty=0.04,
+    )
+
+
+def _route_for_profile(profile: dict[str, Any]) -> str:
+    if profile.get("codes"):
+        return "code_specific"
+    if profile.get("asks_storage") or profile.get("asks_safety") or profile.get("asks_regulatory"):
+        return "compliance_storage_safety"
+    if profile.get("asks_activity"):
+        return "activity"
+    return "broad_semantic"
 
 
 def _rank_hits(question: str, hits: list[dict[str, Any]], cfg: SearchConfig) -> list[SearchResult]:
@@ -50,6 +122,8 @@ def _rank_hits(question: str, hits: list[dict[str, Any]], cfg: SearchConfig) -> 
             query_tokens=query_tokens,
             payload=payload,
             text=text,
+            profile=profile,
+            cfg=cfg,
         )
         structured_score = _structured_field_score(profile=profile, payload=payload)
 
@@ -85,7 +159,63 @@ def _rank_hits(question: str, hits: list[dict[str, Any]], cfg: SearchConfig) -> 
     scored = _dedup_by_chunk(scored)
     if cfg.diversity_enabled:
         scored = _apply_diversity(scored, cfg)
+    if cfg.doc_fusion_enabled:
+        scored = _dedup_by_doc(scored)
+    if cfg.reranker_enabled:
+        scored = _apply_cross_encoder_rerank(question=question, items=scored, cfg=cfg)
     return sorted(scored, key=lambda x: x.final_score, reverse=True)
+
+
+@lru_cache(maxsize=4)
+def _load_reranker(model_name: str) -> CrossEncoderReranker | None:
+    try:
+        return CrossEncoderReranker(model_name)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _apply_cross_encoder_rerank(question: str, items: list[SearchResult], cfg: SearchConfig) -> list[SearchResult]:
+    if not items:
+        return items
+    top_n = max(1, min(cfg.reranker_top_n, len(items)))
+    reranker = _load_reranker(cfg.reranker_model)
+    if reranker is None:
+        return items
+
+    head = items[:top_n]
+    tail = items[top_n:]
+    ce_scores = reranker.score(question=question, texts=[it.text for it in head])
+    if len(ce_scores) != len(head):
+        return items
+
+    min_s = min(ce_scores)
+    max_s = max(ce_scores)
+    span = max_s - min_s
+    if span > 1e-9:
+        ce_norm = [(s - min_s) / span for s in ce_scores]
+    else:
+        ce_norm = [0.5 for _ in ce_scores]
+
+    alpha = max(0.0, min(1.0, cfg.reranker_weight))
+    for item, ce in zip(head, ce_norm):
+        item.final_score = (1.0 - alpha) * item.final_score + alpha * ce
+        item.score = item.final_score
+
+    head.sort(key=lambda x: x.final_score, reverse=True)
+    return head + tail
+
+
+def _adaptive_fetch_k(k: int, cfg: SearchConfig, profile: dict[str, Any]) -> int:
+    base = max(k, k * max(1, cfg.fetch_multiplier), cfg.candidate_pool)
+    if not cfg.adaptive_fetch_enabled:
+        return base
+    if profile.get("codes"):
+        return max(base, 24)
+    if profile.get("asks_storage") or profile.get("asks_safety") or profile.get("asks_activity"):
+        return max(base, 50)
+    if profile.get("broad_mode"):
+        return max(base, 40)
+    return base
 
 
 def _dedup_by_chunk(items: list[SearchResult]) -> list[SearchResult]:
@@ -95,6 +225,17 @@ def _dedup_by_chunk(items: list[SearchResult]) -> list[SearchResult]:
         if item.chunk_id in seen:
             continue
         seen.add(item.chunk_id)
+        out.append(item)
+    return out
+
+
+def _dedup_by_doc(items: list[SearchResult]) -> list[SearchResult]:
+    out: list[SearchResult] = []
+    seen: set[str] = set()
+    for item in items:
+        if item.doc_id in seen:
+            continue
+        seen.add(item.doc_id)
         out.append(item)
     return out
 
@@ -151,7 +292,10 @@ def _query_profile(query_norm: str, query_tokens: set[str]) -> dict[str, Any]:
     asks_optimum = any(t in query_tokens for t in {"optimum", "optimal", "suggested"})
     asks_activity = any(t in query_tokens for t in {"activity", "skb", "fau", "xylh", "agi"})
     asks_safety = any(t in query_tokens for t in {"allergen", "allergens", "heavy", "metals", "cadmium", "lead"})
-    asks_storage = any(t in query_tokens for t in {"storage", "shelf", "durability", "months", "temperature"})
+    asks_storage = any(
+        t in query_tokens
+        for t in {"storage", "shelf", "durability", "months", "temperature", "conservation", "stockage", "humidity"}
+    )
     asks_regulatory = any(t in query_tokens for t in {"legal", "regulatory", "directive", "codex", "autorise", "maximum"})
     broad_mode = len(codes) == 0
 
@@ -215,32 +359,50 @@ def _structured_field_score(profile: dict[str, Any], payload: dict[str, Any]) ->
     ):
         score += 0.16
     if profile.get("asks_storage") and str(md.get("section_canonical", "")) == "storage":
-        score += 0.12
+        score += 0.14
     if profile.get("asks_safety") and str(md.get("section_canonical", "")) == "food_safety":
-        score += 0.12
+        score += 0.16
     if profile.get("asks_activity") and "activity" in _normalize_text(str(payload.get("text", ""))[:180]):
-        score += 0.12
+        score += 0.14
 
-    return max(-0.20, min(0.30, score))
+    return max(-0.20, min(0.35, score))
 
 
-def _doc_specific_score(query_norm: str, query_tokens: set[str], payload: dict[str, Any], text: str) -> float:
+def _doc_specific_score(
+    query_norm: str,
+    query_tokens: set[str],
+    payload: dict[str, Any],
+    text: str,
+    profile: dict[str, Any],
+    cfg: SearchConfig,
+) -> float:
     doc_id = str(payload.get("doc_id", ""))
     file_name = str(payload.get("file_name", ""))
+    md = payload.get("metadata") or {}
     # Use short text prefix to keep this fast while still capturing model codes near headers.
     doc_tokens = _tokenize(" ".join([doc_id, file_name, text[:320]]))
 
     query_codes = _extract_model_codes(query_norm, query_tokens)
-    doc_codes = _extract_model_codes(_normalize_text(" ".join([doc_id, file_name])), doc_tokens)
+    doc_codes = set(str(c) for c in md.get("model_codes_canonical", md.get("model_codes", [])) or [])
+    if not doc_codes:
+        doc_codes = _extract_model_codes(_normalize_text(" ".join([doc_id, file_name])), doc_tokens)
 
     score = 0.0
-    if query_codes and doc_codes:
-        overlap = query_codes.intersection(doc_codes)
-        if overlap:
-            score += 0.45 + (0.20 * min(2, len(overlap)))
+    if query_codes:
+        if doc_codes:
+            overlap = query_codes.intersection(doc_codes)
+            if overlap:
+                score += 0.50 + (0.20 * min(2, len(overlap)))
+            elif cfg.use_query_constraints:
+                score -= cfg.code_mismatch_penalty
+        elif cfg.use_query_constraints:
+            score -= cfg.code_mismatch_penalty * 0.7
 
     query_families = _extract_families(query_tokens)
     doc_families = _extract_families(doc_tokens)
+    metadata_family = str(md.get("family_canonical") or md.get("product_family") or "").lower()
+    if metadata_family:
+        doc_families.add(metadata_family)
     if query_families and doc_families and query_families.intersection(doc_families):
         score += 0.25
 
@@ -253,14 +415,34 @@ def _doc_specific_score(query_norm: str, query_tokens: set[str], payload: dict[s
     if (not query_is_ascorbic) and doc_is_ascorbic and query_families:
         score -= 0.45
 
-    return max(-0.60, min(0.90, score))
+    doc_section = str(md.get("section_canonical", "")).lower()
+    if cfg.use_query_constraints:
+        if profile.get("asks_storage"):
+            if doc_section == "storage":
+                score += 0.10
+            elif doc_section and doc_section != "storage":
+                score -= cfg.section_mismatch_penalty * 0.5
+        if profile.get("asks_safety"):
+            if doc_section == "food_safety":
+                score += 0.12
+            elif doc_section and doc_section != "food_safety":
+                score -= cfg.section_mismatch_penalty * 0.5
+        if profile.get("asks_regulatory"):
+            if doc_section == "regulatory":
+                score += 0.08
+            elif doc_section and doc_section not in {"regulatory", "dosage"}:
+                score -= cfg.section_mismatch_penalty * 0.4
+
+    return max(-0.60, min(1.00, score))
 
 
 def _extract_families(tokens: set[str]) -> set[str]:
     families: set[str] = set()
-    for family in {"hcf", "hcb", "af", "amg", "tg", "gox", "go", "fresh", "soft"}:
+    for family in {"hcf", "hcb", "af", "amg", "tg", "gox", "go", "fresh", "soft", "fresh_soft"}:
         if family in tokens:
             families.add(family)
+    if "fresh" in tokens or "soft" in tokens:
+        families.add("fresh_soft")
     if "lipase" in tokens:
         families.add("lipase")
     return families
@@ -272,15 +454,19 @@ def _extract_model_codes(text_norm: str, tokens: set[str]) -> set[str]:
     # Compact alphanumeric product markers, e.g. hcf600, hcb708, af110, amg880, tg883, gox110, fresh101, soft305.
     for token in tokens:
         if re.fullmatch(r"(?:hcf|hcb|af|amg|tg|gox|go|fresh|soft)\d{2,4}", token):
-            codes.add(token)
+            codes.add(_canonicalize_model_code(token))
         if re.fullmatch(r"max(?:63|64|65)", token):
-            codes.add(token)
+            codes.add(_canonicalize_model_code(token))
         if re.fullmatch(r"l(?:55|65)", token):
-            codes.add(token)
+            codes.add(_canonicalize_model_code(token))
 
     # Spaced variants in queries/docs, e.g. "hcf max x", "hcf max63", "l max64", "go max 63".
     for match in re.findall(r"\b(hcf|hcb|tg|go|l)\s*max\s*(x|63|64|65)\b", text_norm):
-        codes.add(f"{match[0]}max{match[1]}")
+        codes.add(_canonicalize_model_code(f"{match[0]}max{match[1]}"))
+    for family, num in re.findall(r"\b(?:a\s+)?(soft|fresh)\s*[- ]?\s*(\d{2,4})\b", text_norm):
+        codes.add(_canonicalize_model_code(f"{family}{num}"))
+    for family, num in re.findall(r"\b(hcf|hcb|af|amg|tg|gox|go|fresh|soft)\s*[- ]?\s*(\d{2,4})\b", text_norm):
+        codes.add(_canonicalize_model_code(f"{family}{num}"))
 
     return codes
 
@@ -383,3 +569,11 @@ def _normalize_text(text: str) -> str:
     text = text.lower()
     text = re.sub(r"[^a-z0-9%/\-\s]", " ", text)
     return re.sub(r"\s+", " ", text).strip()
+
+
+def _canonicalize_model_code(code: str) -> str:
+    value = _normalize_text(code).replace(" ", "")
+    value = value.replace("-", "")
+    value = re.sub(r"^asoft", "soft", value)
+    value = re.sub(r"^afresh", "fresh", value)
+    return value

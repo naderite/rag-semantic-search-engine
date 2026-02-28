@@ -266,6 +266,10 @@ def prepare_documents(input_dir: str, output_dir: str, config: PrepConfig) -> Pr
     report.chunks_after_dedup = len(unique_chunks)
 
     save_chunks_jsonl(unique_chunks, str(output_path / "chunks.jsonl"))
+    if config.emit_doc_catalog:
+        doc_catalog = _build_doc_catalog(unique_chunks)
+        with (output_path / "doc_catalog.json").open("w", encoding="utf-8") as fh:
+            json.dump(doc_catalog, fh, indent=2, ensure_ascii=False)
     with (output_path / "prep_report.json").open("w", encoding="utf-8") as fh:
         json.dump(asdict(report), fh, indent=2, ensure_ascii=False)
 
@@ -702,22 +706,21 @@ def _extract_structured_metadata(text: str, doc_id: str, file_name: str) -> dict
 
     family = _infer_product_family(norm)
     metadata["product_family"] = family
+    metadata["family_canonical"] = family
 
     codes = sorted(_extract_model_codes(norm))
     if codes:
         metadata["model_codes"] = codes
+        metadata["model_codes_canonical"] = sorted({_canonicalize_model_code(c) for c in codes})
+
+    metadata["doc_id_canonical"] = _canonical_doc_id(doc_id)
 
     dosage_fields = _extract_dosage_fields(norm)
     metadata.update(dosage_fields)
 
-    if "food safty data" in norm or "food safety data" in norm:
-        metadata["section_canonical"] = "food_safety"
-    elif "dosages recommandes" in norm or "dosage" in norm:
-        metadata["section_canonical"] = "dosage"
-    elif "reglementation" in norm or "directive" in norm or "codex alimentarius" in norm:
-        metadata["section_canonical"] = "regulatory"
-    elif "storage" in norm or "minimum durability" in norm or "conservation" in norm:
-        metadata["section_canonical"] = "storage"
+    section = _detect_section_canonical(norm)
+    if section:
+        metadata["section_canonical"] = section
 
     return metadata
 
@@ -759,8 +762,95 @@ def _extract_model_codes(text_norm: str) -> set[str]:
 
     for prefix, suffix in re.findall(r"\b(hcf|hcb|tg|go|l)\s*max\s*(x|63|64|65)\b", text_norm):
         codes.add(f"{prefix}max{suffix}")
+    for family, num in re.findall(r"\b(?:a\s+)?(soft|fresh)\s*[- ]?\s*(\d{2,4})\b", text_norm):
+        codes.add(f"{family}{num}")
+    for prefix, num in re.findall(r"\b(hcf|hcb|af|amg|tg|gox|fresh|soft)\s*[- ]?\s*(\d{2,4})\b", text_norm):
+        codes.add(f"{prefix}{num}")
+    for family, num in re.findall(r"\b(go)\s*[- ]?\s*(\d{2,4})\b", text_norm):
+        codes.add(f"{family}{num}")
 
-    return codes
+    return {_canonicalize_model_code(code) for code in codes if code}
+
+
+def _canonical_doc_id(doc_id: str) -> str:
+    value = _normalize_token(doc_id)
+    value = re.sub(r"\btds\b", " ", value)
+    value = re.sub(r"\(\d+\)", " ", value)
+    value = re.sub(r"\bpdf\b", " ", value)
+    value = re.sub(r"\s+", " ", value).strip()
+    return value
+
+
+def _canonicalize_model_code(code: str) -> str:
+    c = _normalize_token(code).replace(" ", "")
+    c = c.replace("-", "")
+    c = re.sub(r"^asoft", "soft", c)
+    c = re.sub(r"^afresh", "fresh", c)
+    return c
+
+
+def _detect_section_canonical(norm: str) -> str | None:
+    if any(token in norm for token in ("food safty data", "food safety data", "heavy metals", "allergens", "microbiology")):
+        return "food_safety"
+    if any(token in norm for token in ("reglementation", "reglementation", "directive", "codex alimentarius", "legal framework")):
+        return "regulatory"
+    if any(
+        token in norm
+        for token in (
+            "storage",
+            "minimum durability",
+            "shelf life",
+            "temperature",
+            "conservation",
+            "humidite",
+            "humidity",
+        )
+    ):
+        return "storage"
+    if any(token in norm for token in ("dosages recommandes", "dosage", "recommended dosage", "suggested optimum dosage")):
+        return "dosage"
+    return None
+
+
+def _build_doc_catalog(chunks: list[ChunkRecord]) -> dict[str, dict[str, object]]:
+    catalog: dict[str, dict[str, object]] = {}
+    for chunk in chunks:
+        md = chunk.metadata or {}
+        doc = catalog.setdefault(
+            chunk.doc_id,
+            {
+                "doc_id_canonical": md.get("doc_id_canonical", _canonical_doc_id(chunk.doc_id)),
+                "file_name": chunk.file_name,
+                "families": set(),
+                "model_codes": set(),
+                "sections": set(),
+                "pages": set(),
+                "chunks": 0,
+            },
+        )
+        fam = str(md.get("family_canonical") or md.get("product_family") or "").strip()
+        if fam:
+            doc["families"].add(fam)
+        for code in md.get("model_codes_canonical", md.get("model_codes", [])) or []:
+            doc["model_codes"].add(str(code))
+        section = str(md.get("section_canonical") or "").strip()
+        if section:
+            doc["sections"].add(section)
+        doc["pages"].add(int(chunk.page))
+        doc["chunks"] += 1
+
+    out: dict[str, dict[str, object]] = {}
+    for doc_id, row in catalog.items():
+        out[doc_id] = {
+            "doc_id_canonical": row["doc_id_canonical"],
+            "file_name": row["file_name"],
+            "families": sorted(row["families"]),
+            "model_codes": sorted(row["model_codes"]),
+            "sections": sorted(row["sections"]),
+            "pages": sorted(row["pages"]),
+            "chunks": row["chunks"],
+        }
+    return out
 
 
 def _extract_dosage_fields(text_norm: str) -> dict[str, str]:

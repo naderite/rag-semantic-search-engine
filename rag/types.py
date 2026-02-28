@@ -27,13 +27,16 @@ class PrepConfig:
     ocr_lang: str = "eng+fra"
     include_list_items: bool = False
     dedup_across_docs: bool = True
+    enable_doc_alias_canonicalization: bool = True
+    emit_doc_catalog: bool = True
+    section_keyword_mode: str = "multilingual_strict"
 
 
 @dataclass
 class VectorConfig:
     collection_name: str = "rag_chunks"
     qdrant_url: str = "http://localhost:6333"
-    embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    embedding_model: str = "models/paraphrase-multilingual-MiniLM-L12-v2"
     embedder: Embedder | None = None
     vector_store: VectorStore | None = None
 
@@ -42,19 +45,29 @@ class VectorConfig:
 class SearchConfig:
     collection_name: str = "rag_chunks"
     qdrant_url: str = "http://localhost:6333"
-    embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    embedding_model: str = "models/paraphrase-multilingual-MiniLM-L12-v2"
     embedder: Embedder | None = None
     vector_store: VectorStore | None = None
     context_window: int = 1
     chunks_jsonl_path: str | None = "artifacts/chunks.jsonl"
-    fetch_multiplier: int = 2
+    fetch_multiplier: int = 3
     hybrid_enabled: bool = True
-    candidate_pool: int = 30
-    dense_weight: float = 0.65
-    lexical_weight: float = 0.25
+    candidate_pool: int = 60
+    dense_weight: float = 0.58
+    lexical_weight: float = 0.32
     field_weight: float = 0.10
-    diversity_enabled: bool = True
+    diversity_enabled: bool = False
     diversity_penalty: float = 0.10
+    use_query_constraints: bool = True
+    code_mismatch_penalty: float = 0.10
+    section_mismatch_penalty: float = 0.08
+    doc_fusion_enabled: bool = True
+    adaptive_fetch_enabled: bool = True
+    route_overrides_enabled: bool = True
+    reranker_enabled: bool = False
+    reranker_model: str = "models/ms-marco-MiniLM-L-6-v2"
+    reranker_top_n: int = 20
+    reranker_weight: float = 0.35
 
 
 @dataclass

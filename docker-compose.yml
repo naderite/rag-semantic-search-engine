@@ -18,11 +18,13 @@ services:
     environment:
       QDRANT_URL: http://qdrant:6333
       QDRANT_COLLECTION: rag_chunks
-      EMBEDDING_MODEL: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+      EMBEDDING_MODEL: models/paraphrase-multilingual-MiniLM-L12-v2
       RAG_INPUT_DIR: data
       RAG_OUTPUT_DIR: artifacts
+      RAG_EMBEDDING_LOCAL_ONLY: "1"
     volumes:
       - ./artifacts:/app/artifacts
+      - ./models:/app/models
       - huggingface_cache:/root/.cache/huggingface
     command: ["python", "scripts/run_indexing.py"]
 
