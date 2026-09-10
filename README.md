@@ -1,3 +1,21 @@
+# Evaluated Multilingual PDF Retrieval Pipeline
+
+A production-oriented retrieval module for noisy PDF collections. It combines text extraction with OCR fallback, semantic chunking, multilingual embeddings, Qdrant, hybrid dense/lexical/metadata scoring, intent-aware routing, and optional cross-encoder reranking.
+
+## Measured results
+
+The checked-in evaluation suite contains 100 human-authored queries. On that dataset, the selected configuration achieved:
+
+- **91% Hit@3**
+- **0.8933 MRR@3**
+- **45.2 ms average local retrieval latency**
+
+The repository includes unit and API tests, evaluation datasets, feature benchmarks, hyperparameter sweeps, Docker configuration, a FastAPI backend, and a React interface. Start with the [architecture](#2-architecture), then use the setup and evaluation sections below to reproduce the pipeline.
+
+> The detailed documentation below is currently in French. The code, public interfaces, configuration names, and test commands are language-neutral.
+
+---
+
 # Pipeline RAG Sémantique sur PDF
 
 Dans un contexte où une base documentaire contient un grand volume d'informations
